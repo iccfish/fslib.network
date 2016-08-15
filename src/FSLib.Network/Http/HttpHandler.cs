@@ -100,6 +100,7 @@ namespace FSLib.Network.Http
 
 			if (remoteEndPoint.AddressFamily != localEndPoint.AddressFamily)
 				throw new IPAddressFamilyMismatchException(remoteEndPoint, localEndPoint);
+			ef.LocalEndPoint = localEndPoint;
 
 			return localEndPoint;
 		}

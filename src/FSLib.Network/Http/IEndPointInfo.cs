@@ -12,10 +12,10 @@
 		/// </summary>
 		IPEndPoint RemoteEndPoint { get; }
 
-		///// <summary>
-		///// 获得本地终端信息
-		///// </summary>
-		//IPEndPoint LocalEndPoint { get; }
+		/// <summary>
+		/// 获得本地终端信息
+		/// </summary>
+		IPEndPoint LocalEndPoint { get; }
 
 		/// <summary>
 		/// 相关联的IP地址信息
