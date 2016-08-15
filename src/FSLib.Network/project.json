@@ -1,0 +1,113 @@
+{
+    "name": "network.fishlee.net",
+    "title": "FSLib.Network.Http (iFish's Network Library)",
+    "copyright": "Copyright © 木鱼  2013-2016",
+    "description": "A strong http client for .NET with high usability",
+    "version": "2.2.0.0",
+    "authors": [
+        "iFish"
+    ],
+    "packOptions": {
+        "tags": [
+            "http",
+            "web",
+            "network",
+            "httpclient"
+        ],
+        "summary": "A extension methods library for .net 3.5/4/4.5/core",
+        "releaseNotes": "2.2.0.0",
+        "owners": [ "iFish" ],
+        "iconUrl": "https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png",
+        "licenseUrl": "",
+        "files": {
+            "include": [
+                "../content/*"
+            ]
+        },
+        "repository": {
+            "type": "git",
+            "url": "https://github.com/iccfish/fslib.network"
+        },
+        "requireLicenseAcceptance": false
+    },
+    "frameworks": {
+        "net35": {
+            "frameworkAssemblies": {
+                "System.Core": "3.5.0.0",
+                "System.Drawing": "2.0.0.0",
+                "System.Web": "2.0.0.0",
+                "System.Xml": "2.0.0.0",
+                "System.Xml.Linq": "3.5.0.0"
+            },
+            "dependencies": {
+                "extension.fishlee.net": "1.4.2.0",
+                "Newtonsoft.Json": "9.0.1"
+            },
+            "buildOptions": {
+                "define": [
+                    "NET35"
+                ]
+            }
+        },
+        "net40": {
+            "frameworkAssemblies": {
+                "System.Drawing": "4.0.0.0",
+                "System.Web": "4.0.0.0",
+                "System.Xml": "4.0.0.0",
+                "System.Xml.Linq": "4.0.0.0"
+            },
+            "dependencies": {
+                "extension.fishlee.net": "1.4.2.0",
+                "Newtonsoft.Json": "9.0.1"
+            },
+            "buildOptions": {
+                "define": [
+                    "NET40",
+                    "NET_GT_4"
+                ]
+            }
+        },
+        "net45": {
+            "frameworkAssemblies": {
+                "System.Drawing": "4.0.0.0",
+                "System.Web": "4.0.0.0",
+                "System.Xml": "4.0.0.0",
+                "System.Xml.Linq": "4.0.0.0"
+            },
+            "dependencies": {
+                "extension.fishlee.net": "1.4.2.0",
+                "Newtonsoft.Json": "9.0.1"
+            },
+            "buildOptions": {
+                "define": [
+                    "NET45",
+                    "NET_GT_4",
+                    "NET_GT_45"
+                ]
+            }
+        },
+    },
+    "configurations": {
+        "Release": {
+            "buildOptions": {
+                "define": [ "TRACE" ],
+                "optimize": true
+            }
+        },
+        "Debug": {
+            "buildOptions": {
+                "define": [ "DEBUG", "TRACE" ],
+                "optimize": false
+            }
+        }
+    },
+    "buildOptions": {
+        "keyFile": "../snk/fslib.network.snk",
+        "outputName": "FSLib.Network",
+        "xmlDoc": true,
+        "compile": {
+            "exclude": [
+            ]
+        }
+    }
+}

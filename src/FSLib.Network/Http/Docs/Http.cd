@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="FSLib.Network.Http.HttpClient">
+    <Position X="0.5" Y="0.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>kRAAEBAAAAACAAJQBAKEBAAoCAQQAUAAAoAAEEBAAAQ=</HashCode>
+      <FileName>Http\HttpClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpContext">
+    <Position X="3.25" Y="0.75" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Events" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AVJEhBggFCX3K+QAgOyAXYRKAIQigBUaBUHBrSACBCQ=</HashCode>
+      <FileName>Http\HttpContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpContext&lt;T&gt;">
+    <Position X="6.25" Y="0.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAgEAAEAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Http\HttpContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpHandler">
+    <Position X="13.5" Y="10.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>gAYAABCAAAAAAAAQAAAACACAAAIAABAAASAAAAAAAEA=</HashCode>
+      <FileName>Http\HttpHandler.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.21" />
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpRequestMessage">
+    <Position X="9.75" Y="2.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>EIEBAgAAChAQKwACEQggEQAAiEEgCAIACAYQACAAAgQ=</HashCode>
+      <FileName>Http\HttpRequestMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpResponseMessage" Collapsed="true">
+    <Position X="11" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AIAAAgAEAgAAAAQAAAIgAABKCAQAAFQBIAIZAoQAgCA=</HashCode>
+      <FileName>Http\HttpResponseMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseBinaryContent" Collapsed="true">
+    <Position X="16.5" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AABAACAgACBQAAACAAAAAAQAAAAEAAAAAYAAAgAAAAA=</HashCode>
+      <FileName>Http\ResponseBinaryContent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseFileContent" Collapsed="true">
+    <Position X="21" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAgACAAAAAAAAAAAAAAAAAEAAAAAABAAgEAAAA=</HashCode>
+      <FileName>Http\ResponseFileContent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseImageContent" Collapsed="true">
+    <Position X="16.5" Y="3" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAUAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Http\ResponseImageContent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseObjectContent&lt;T&gt;" Collapsed="true">
+    <Position X="14.25" Y="3" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAgAAAAAAAAAgAAAAAAAABAGAAAAAA=</HashCode>
+      <FileName>Http\ResponseObjectContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseStreamContent" Collapsed="true">
+    <Position X="23.25" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAABAAAAAAAAAAAAAAAAAEAAAAAAAAAkAAAAA=</HashCode>
+      <FileName>Http\ResponseStreamContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseStringContent" Collapsed="true">
+    <Position X="18.75" Y="3" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Http\ResponseStringContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.ResponseXmlContent" Collapsed="true">
+    <Position X="18.75" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAAABAAAAAAAAABBAAAAAAAA=</HashCode>
+      <FileName>Http\ResponseXmlContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpResponseContent" Collapsed="true">
+    <Position X="18.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>CBBAAAAAAyIEAAAAAAAAAAAAAAAAAAAAAAAAAgAAAQQ=</HashCode>
+      <FileName>Http\HttpResponseContent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestStringContent" Collapsed="true">
+    <Position X="14.25" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAIAAgAAAAAAAAAAgAAAAAIAAAAgAAAAAAABAAA=</HashCode>
+      <FileName>Http\RequestStringContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestXmlContent" Collapsed="true">
+    <Position X="18.75" Y="8.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Http\RequestXmlContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestObjectContent&lt;T&gt;" Collapsed="true">
+    <Position X="21" Y="8.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAAAgAAAAAAAAAAAgAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Http\RequestObjectContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestJsonContent" Collapsed="true">
+    <Position X="16.5" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAQAAAAAAAAAAAAAIAAAAgAAAAEACAAAA=</HashCode>
+      <FileName>Http\RequestJsonContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestFormDataContent" Collapsed="true">
+    <Position X="21" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAIAAAABAAAEAAgAgAAAAAIAhAAgAAAAAAQACAA=</HashCode>
+      <FileName>Http\RequestFormDataContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestCopyStreamContent" Collapsed="true">
+    <Position X="23.25" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAABAIgAAAAAAAAAAAAAAAAEAIIAAAgAABAAAAAAAA=</HashCode>
+      <FileName>Http\RequestCopyStreamContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.RequestByteBufferContent" Collapsed="true">
+    <Position X="18.75" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAFAAIIAAAAgAAAAAAAAwAA=</HashCode>
+      <FileName>Http\RequestByteBufferContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpRequestContent" Collapsed="true">
+    <Position X="18.75" Y="6" Width="2" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAiAkQAAAAAAAgAAAAAIAAAAgAAAAIAEACwQ=</HashCode>
+      <FileName>Http\HttpRequestContent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="FSLib.Network.Http.HttpSetting">
+    <Position X="10" Y="14" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AYpAMAAAMAIQCAEAMQQFAAAAGgABBAIAAQaQAAIIQAA=</HashCode>
+      <FileName>Http\HttpSetting.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="FSLib.Network.Http.IHttpHandler">
+    <Position X="0.5" Y="8.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>gAQAAACAAAAAAAAQAAAACACAAAIAABAAASAAAAAAAEA=</HashCode>
+      <FileName>Http\IHttpHandler.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
