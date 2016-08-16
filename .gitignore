@@ -20,3 +20,5 @@ VSDoc
 *.lock.json
 .vs
 .cr
+csprojs
+FSLibNetworkShared*
