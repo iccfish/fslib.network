@@ -26,28 +26,53 @@ namespace FSLib.Network.Http
 
 		static void BuildGetSocketDelegate()
 		{
+			var resultType = typeof(Socket);
+
 			try
 			{
 				var requestType = typeof(HttpWebRequest);
 				var connectStreamType = requestType.Assembly.GetType("System.Net.ConnectStream");
+
+				if (connectStreamType == null)
+					return;
+
 				var paramExp = Expression.Parameter(typeof(Stream), "stream");
 
 #if NET_GT_4
 				// .NET 4.5+
 				var prop = connectStreamType.GetProperty("InternalSocket", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance);
-				var connectStreamExp = Expression.Convert(paramExp, connectStreamType);
-				var propertyExp = Expression.Property(connectStreamExp, prop);
+				if (prop == null)
+					return;
+
+				var connectStreamExp = Expression.TypeAs(paramExp, connectStreamType);
+
+				var propertyExp = Expression.Condition(
+					Expression.ReferenceNotEqual(connectStreamExp, Expression.Constant(null, connectStreamType)),
+					Expression.Property(connectStreamExp, prop),
+					Expression.Constant(null, resultType)
+				);
 
 				_getRawSocketDelegate = Expression.Lambda<Func<Stream, Socket>>(propertyExp, paramExp).Compile();
 
-#else
+#elif NET35
 				// <= .NET 4.0
 				var prop = connectStreamType.GetProperty("Connection", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance);
-				var connectionType = requestType.Assembly.GetType("System.Net.PooledStream");
-				var getConnection = Expression.Convert(Expression.Property(paramExp, prop), connectionType);
-				var getSocket = connectionType.GetProperty("Socket", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetProperty);
+				if (prop == null)
+					return;
 
-				_getRawSocketDelegate = Expression.Lambda<Func<Stream, Socket>>(Expression.Property(getConnection, getSocket), paramExp).Compile();
+				var connectionType = requestType.Assembly.GetType("System.Net.PooledStream");
+				var getSocket = connectionType?.GetProperty("Socket", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetProperty);
+				if (getSocket == null)
+					return;
+
+				var getConnection = Expression.TypeAs(Expression.Property(paramExp, prop), connectionType);
+				var propertyExp = Expression.Condition(
+					Expression.Equal(getConnection, Expression.Constant(null, connectionType)),
+					Expression.Property(getConnection, getSocket),
+					Expression.Constant(null, resultType)
+				);
+
+				_getRawSocketDelegate = Expression.Lambda<Func<Stream, Socket>>(propertyExp, paramExp).Compile();
 #endif
 			}
 			catch (Exception e)
@@ -62,6 +87,9 @@ namespace FSLib.Network.Http
 			{
 				var sptype = typeof(ServicePoint);
 				var fieldInfo = sptype.GetField("m_IPAddressInfoList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
+				if (fieldInfo == null)
+					return;
+
 				var exp1param = Expression.Parameter(sptype, "servicePoint");
 				var expaccess = Expression.Field(exp1param, fieldInfo);
 				_getIPAddressListDelegate = Expression.Lambda<Func<ServicePoint, IPAddress[]>>(expaccess, exp1param).Compile();
