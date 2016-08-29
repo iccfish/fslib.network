@@ -30,9 +30,6 @@
         },
         "requireLicenseAcceptance": false
     },
-    "namedResource": {
-        "FSLib.Network.Http.SR": "Http/SR.resx" 
-    },
     "frameworks": {
         "net35": {
             "frameworkAssemblies": {
@@ -108,6 +105,11 @@
         "keyFile": "../snk/fslib.network.snk",
         "outputName": "FSLib.Network",
         "xmlDoc": true,
+        "embed": {
+            "mappings": {
+                "FSLib.Network.Http.SR": "Http/SR.resx"
+            }
+        },
         "compile": {
             "exclude": [
             ]
