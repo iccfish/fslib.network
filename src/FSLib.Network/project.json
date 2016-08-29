@@ -30,6 +30,9 @@
         },
         "requireLicenseAcceptance": false
     },
+    "namedResource": {
+        "FSLib.Network.Http.SR": "Http/SR.resx" 
+    },
     "frameworks": {
         "net35": {
             "frameworkAssemblies": {
@@ -85,7 +88,7 @@
                     "NET_GT_45"
                 ]
             }
-        },
+        }
     },
     "configurations": {
         "Release": {
