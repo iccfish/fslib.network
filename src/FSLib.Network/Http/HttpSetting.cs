@@ -106,7 +106,7 @@ namespace FSLib.Network.Http
 			request.UseNagleAlgorithm = UseNagleAlgorithm;
 			request.AllowWriteStreamBuffering = AllowWriteStreamBuffering;
 			request.Authorization = AuthorizationManager?.GetAuthorization(context) ?? Authorization;
-			if (KeepReferBetweenRequest && LastUri != null)
+			if (KeepReferBetweenRequest && request.Referer.IsNullOrEmpty() && LastUri != null)
 			{
 				request.Referer = LastUri.OriginalString;
 			}

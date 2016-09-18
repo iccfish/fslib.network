@@ -368,8 +368,6 @@ namespace FSLib.Network.Http
 			if (message.Encoding == null)
 				message.Encoding = Setting.StringEncoding;
 			var context = HttpHandler.GetContext(this, message);
-			if (message.Referer.IsNullOrEmpty())
-				message.Referer = Setting.LastUri.AbsoluteUri;
 
 			return context;
 		}
