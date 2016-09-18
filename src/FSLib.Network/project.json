@@ -3,7 +3,7 @@
     "title": "FSLib.Network.Http (iFish's Network Library)",
     "copyright": "Copyright © 木鱼  2013-2016",
     "description": "A strong http client for .NET with high usability",
-    "version": "2.2.1.0",
+    "version": "2.2.2.0",
     "authors": [
         "iFish"
     ],
