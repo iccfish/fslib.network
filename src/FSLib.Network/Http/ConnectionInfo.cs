@@ -22,6 +22,11 @@ namespace FSLib.Network.Http
 		}
 
 		/// <summary>
+		/// 获得分析过程中的错误信息
+		/// </summary>
+		public Exception Exception { get; private set; }
+
+		/// <summary>
 		/// 刷新信息
 		/// </summary>
 		/// <param name="request"></param>
@@ -40,8 +45,15 @@ namespace FSLib.Network.Http
 
 		internal void SetRequest(HttpWebRequest requestInfo, HttpWebResponse response)
 		{
-			if (ServerIPAddressList == null)
-				ServerIPAddressList = SocketInfoProvider.GetRawSocketFromStream(requestInfo.ServicePoint);
+			try
+			{
+				if (ServerIPAddressList == null)
+					ServerIPAddressList = SocketInfoProvider.GetRawSocketFromStream(requestInfo.ServicePoint);
+			}
+			catch (Exception ex)
+			{
+				Exception = ex;
+			}
 		}
 
 		/// <summary>
@@ -51,8 +63,15 @@ namespace FSLib.Network.Http
 		/// <param name="stream"></param>
 		internal void SetStream(bool isRequest, Stream stream)
 		{
-			if (RawSocket == null)
-				RawSocket = SocketInfoProvider.GetRawSocketFromStream(stream);
+			try
+			{
+				if (RawSocket == null)
+					RawSocket = SocketInfoProvider.GetRawSocketFromStream(stream);
+			}
+			catch (Exception ex)
+			{
+				Exception = ex;
+			}
 		}
 
 		/// <summary>
@@ -89,6 +108,7 @@ namespace FSLib.Network.Http
 			private set
 			{
 				_rawSocket = value;
+
 				LocalIPEndPoint = (IPEndPoint)_rawSocket?.LocalEndPoint;
 				RemoteIPEndPoint = (IPEndPoint)_rawSocket?.RemoteEndPoint;
 			}
