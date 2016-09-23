@@ -474,7 +474,7 @@ namespace FSLib.Network.Http
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
-			bool isXhr = false,
+			bool? isXhr = null,
 			Dictionary<string, object> contextData = null,
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
@@ -512,7 +512,7 @@ namespace FSLib.Network.Http
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
-			bool isXhr = false,
+			bool? isXhr = null,
 			Dictionary<string, object> contextData = null,
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
@@ -551,7 +551,7 @@ namespace FSLib.Network.Http
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
-			bool isXhr = false,
+			bool? isXhr = null,
 			Dictionary<string, object> contextData = null,
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
@@ -577,7 +577,6 @@ namespace FSLib.Network.Http
 			if (streamInvoker != null && typeof(Stream) == resultType)
 				throw new InvalidOperationException("非流结果时不可设置流操作");
 
-
 			var referUri = Setting.ResolveReferUri ? ResolveUri(HttpRequestHeader.Referer, refer, contextData) : null;
 			var request = new HttpRequestMessage(uri, method)
 			{
@@ -602,7 +601,8 @@ namespace FSLib.Network.Http
 				request.ExceptType = GetPreferedResponseType(ctx, streamInvoker, result, targetStream, saveToFile);
 			}
 			request.ExtraRequestInfo = extra;
-			request.AppendAjaxHeader = isXhr;
+			if(isXhr != null)
+				request.AppendAjaxHeader = isXhr.Value;
 			ctx.ContextData = contextData;
 			request.Headers = headers;
 			request.AllowAutoRedirect = allowAutoRedirect ?? Setting.AllowAutoDirect;
@@ -639,7 +639,7 @@ namespace FSLib.Network.Http
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
-			bool isXhr = false,
+			bool? isXhr = null,
 			Dictionary<string, object> contextData = null,
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
