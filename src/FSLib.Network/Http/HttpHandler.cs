@@ -133,8 +133,11 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public virtual HttpContext GetContext(HttpClient client, HttpRequestMessage request)
 		{
-			var ctx = new HttpContext(client, request);
+			//证书
+			client.Setting.CertificateManager?.SetRequest(request);
 
+			var ctx = new HttpContext(client, request);
+			
 			//附加监听器
 			if (client.Monitor != null)
 				ctx.AttachMonitor(client.Monitor);
