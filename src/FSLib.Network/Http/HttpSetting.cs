@@ -252,6 +252,17 @@ namespace FSLib.Network.Http
 		/// 获得客户端证书集合
 		/// </summary>
 		public X509Certificate[] X509Certificates { get; set; }
+
+		/// <summary>
+		/// 获得或设置证书管理器
+		/// </summary>
+		public ICertificateManager CertificateManager
+		{
+			get { return _certificateManager ?? (_certificateManager = new CertificateManager()); }
+			set { _certificateManager = value; }
+		}
+
+
 		static Dictionary<Type, Exception> _checkCache = new Dictionary<Type, Exception>();
 
 		#region 静态变量
@@ -347,6 +358,7 @@ namespace FSLib.Network.Http
 		string _userAgent;
 		IWebProxy _proxy;
 		int _speedMonitorInterval = 1000;
+		private ICertificateManager _certificateManager;
 
 		/// <summary>
 		/// 获得或设置是否在请求中添加Ajax的标记
