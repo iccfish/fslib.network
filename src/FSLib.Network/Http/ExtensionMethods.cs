@@ -314,6 +314,47 @@ namespace FSLib.Network.Http
 			return context;
 		}
 
+		/// <summary>
+		/// 在指定的HttpClient中查找与指定的Uri关联的所有Cookies
+		/// </summary>
+		/// <param name="client">客户端</param>
+		/// <param name="url">地址</param>
+		/// <returns></returns>
+		public static CookieCollection LookupCookiesForUri(this HttpClient client, string url) => client.LookupCookiesForUri(new Uri(url));
+
+		/// <summary>
+		/// 在指定的HttpClient中查找与指定的Uri关联的所有Cookies
+		/// </summary>
+		/// <param name="client">客户端</param>
+		/// <param name="uri">URI</param>
+		/// <returns></returns>
+		public static CookieCollection LookupCookiesForUri(this HttpClient client, Uri uri) => client?.CookieContainer?.GetCookies(uri);
+
 		#endregion
+
+		#region CookieCollection
+
+		/// <summary>
+		/// 按照名称查找Cookies，如果没有找到，则返回 null。
+		/// </summary>
+		/// <param name="container">当前的上下文</param>
+		/// <param name="name">Cookies名称</param>
+		/// <returns></returns>
+		public static Cookie FindByName(this CookieCollection container, string name) => container?.Cast<Cookie>().FirstOrDefault(s => s.Name == name);
+
+		#endregion
+
+		#region HttpContext
+
+		/// <summary>
+		/// 在响应的Cookies中查找指定名称的Cookeis
+		/// </summary>
+		/// <param name="context">当前的上下文</param>
+		/// <param name="name">Cookies名称</param>
+		/// <returns></returns>
+		public static Cookie FindResponseCookie(this HttpContext context, string name) => context?.Response.Cookies.FindByName(name);
+
+		#endregion
+
 	}
 }
