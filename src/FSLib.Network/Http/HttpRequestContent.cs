@@ -104,6 +104,11 @@ namespace FSLib.Network.Http
 		protected HttpWebRequest WebRequset { get; private set; }
 
 		/// <summary>
+		/// 获得或设置是否阻止Content-Length标头
+		/// </summary>
+		public bool BlockContentLengthHeader { get; set; } = false;
+
+		/// <summary>
 		/// 绑定上下文环境
 		/// </summary>
 		/// <param name="context"></param>
@@ -174,11 +179,13 @@ namespace FSLib.Network.Http
 			if (Message.AllowRequestBody)
 			{
 				var contentLength = ContentLength = ComputeLength();
+
 				//如果长度为-1，则需要对写数据进行缓冲，否则会引发异常
-				if (request.ContentLength < 0)
+				if (contentLength < 0 || BlockContentLengthHeader)
 					request.AllowWriteStreamBuffering = true;
 				else
 					request.ContentLength = contentLength;
+
 				Context.Performance.RequestLength = contentLength;
 			}
 		}
@@ -258,7 +265,7 @@ namespace FSLib.Network.Http
 				if (ContentType != ContentType.None)
 					return;
 
-				if(value.IsNullOrEmpty())
+				if (value.IsNullOrEmpty())
 					throw new ArgumentException(SR.HttpRequestContent_ContentTypeString_NullOrEmpty, nameof(value));
 
 				var ct = value;

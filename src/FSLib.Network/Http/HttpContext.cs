@@ -102,8 +102,8 @@ namespace FSLib.Network.Http
 			WebRequest = Client.HttpHandler.GetRequest(Request.Uri, Request.Method, this);
 			Client.CopyDefaultSettings(this);
 			Request.InitializeWebRequest(this);
-			Client.HttpHandler.PrepareContext(this);
 			Request.ExceptType?.OnRequestInit();
+			Client.HttpHandler.PrepareContext(this);
 
 #if NET_GET_45
 			WebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
@@ -128,6 +128,7 @@ namespace FSLib.Network.Http
 			if (Request.RequestData != null && Request.AllowRequestBody)
 			{
 				Request.RequestData.Prepare(WebRequest);
+				Client.HttpHandler.AfterRequestDataPrepared(this);
 				WriteRequestData();
 			}
 			else
@@ -980,8 +981,8 @@ namespace FSLib.Network.Http
 				var rawStream = getRequestStreamAction();
 				ConnectionInfo.SetRequest(WebRequest, null);
 				ConnectionInfo.SetStream(true, rawStream);
-				stream = Client.HttpHandler.DecorateRequestStream(rawStream);
-				embedStream = new HttpStreamWrapper(stream, WebRequest.ContentLength);
+				stream = Client.HttpHandler.DecorateRequestStream(this, rawStream);
+				embedStream = new HttpStreamWrapper(stream, stream.CanSeek ? stream.Length : WebRequest.ContentLength);
 			}
 			catch (Exception ex)
 			{
@@ -1237,7 +1238,7 @@ namespace FSLib.Network.Http
 			{
 				var responseStreamRaw = WebResponse.GetResponseStream();
 				ConnectionInfo.SetStream(false, responseStreamRaw);
-				responseStream = Client.HttpHandler.DecorateRawResponseStream(responseStreamRaw);
+				responseStream = Client.HttpHandler.DecorateRawResponseStream(this, responseStreamRaw);
 			}
 			catch (Exception ex)
 			{
@@ -1255,8 +1256,9 @@ namespace FSLib.Network.Http
 			}
 
 			//创建wrapper
-			Performance.ResponseLength = Response.ContentLength;
-			responseStream = new HttpStreamWrapper(responseStream, Response.ContentLength);
+			Performance.ResponseLength = responseStream.CanSeek ? responseStream.Length : Response.ContentLength;
+			responseStream = new HttpStreamWrapper(responseStream, Performance.ResponseLength);
+
 			MonitorItem?.SetRawResponseStream((HttpStreamWrapper)responseStream);
 			(responseStream as HttpStreamWrapper).ProgressChanged += (s, e) =>
 			{
@@ -1292,7 +1294,7 @@ namespace FSLib.Network.Http
 					}
 				}
 
-				responseStream = Client.HttpHandler.DecorateResponseStream(responseStream);
+				responseStream = Client.HttpHandler.DecorateResponseStream(this, responseStream);
 			}
 			catch (Exception ex)
 			{

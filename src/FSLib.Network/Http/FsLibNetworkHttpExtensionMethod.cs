@@ -27,6 +27,13 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public static string GetExceptionMessage(this HttpContext ctx, string defaultMessage = null)
 		{
+			if (defaultMessage.IsNullOrEmpty())
+			{
+				if (ctx.Status != null)
+				{
+					defaultMessage = $"服务器返回 {ctx.Status}";
+				}
+			}
 			return ctx.Exception.SelectValue(s => s.Message) ?? defaultMessage;
 		}
 	}

@@ -110,7 +110,7 @@ namespace FSLib.Network.Http
 		/// 初始化上下文。此操作在上下文本身初始化完成之后、请求发出之前调用
 		/// </summary>
 		/// <param name="context"></param>
-		public void PrepareContext(HttpContext context)
+		public virtual void PrepareContext(HttpContext context)
 		{
 		}
 
@@ -243,12 +243,16 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public event EventHandler<HttpHandlerEventArgs> HttpContextCreated;
 
+		public virtual void AfterRequestDataPrepared(HttpContext context)
+		{
+		}
+
 		/// <summary>
 		/// 请求装饰写入的流
 		/// </summary>
 		/// <param name="orignalStream"></param>
 		/// <returns></returns>
-		public virtual Stream DecorateRequestStream(Stream orignalStream)
+		public virtual Stream DecorateRequestStream(HttpContext context, Stream orignalStream)
 		{
 			return orignalStream;
 		}
@@ -258,7 +262,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		/// <param name="orignalStream"></param>
 		/// <returns></returns>
-		public virtual Stream DecorateRawResponseStream(Stream orignalStream)
+		public virtual Stream DecorateRawResponseStream(HttpContext context, Stream orignalStream)
 		{
 			return orignalStream;
 		}
@@ -278,7 +282,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		/// <param name="orignalStream"></param>
 		/// <returns></returns>
-		public virtual Stream DecorateResponseStream(Stream orignalStream)
+		public virtual Stream DecorateResponseStream(HttpContext context, Stream orignalStream)
 		{
 			return orignalStream;
 		}

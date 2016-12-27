@@ -27,23 +27,34 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求装饰响应流（已处理比如解压后的流）
 		/// </summary>
+		/// <param name="context">关联的上下文</param>
 		/// <param name="orignalStream"></param>
 		/// <returns></returns>
-		System.IO.Stream DecorateResponseStream(System.IO.Stream orignalStream);
+		System.IO.Stream DecorateResponseStream(HttpContext context, System.IO.Stream orignalStream);
 
 		/// <summary>
 		/// 请求装饰响应流（原始流）
 		/// </summary>
+		/// <param name="context">关联的上下文</param>
 		/// <param name="orignalStream"></param>
 		/// <returns></returns>
-		System.IO.Stream DecorateRawResponseStream(System.IO.Stream orignalStream);
+		System.IO.Stream DecorateRawResponseStream(HttpContext context, System.IO.Stream orignalStream);
+
+
+		/// <summary>
+		/// 要写入的数据准备完毕
+		/// </summary>
+		/// <param name="context">关联的上下文</param>
+		void AfterRequestDataPrepared(HttpContext context);
+
 
 		/// <summary>
 		/// 请求装饰写入的流
 		/// </summary>
+		/// <param name="context">关联的上下文</param>
 		/// <param name="orignalStream"></param>
 		/// <returns></returns>
-		System.IO.Stream DecorateRequestStream(System.IO.Stream orignalStream);
+		System.IO.Stream DecorateRequestStream(HttpContext context, System.IO.Stream orignalStream);
 
 		/// <summary>
 		/// 自定义处理Cookies

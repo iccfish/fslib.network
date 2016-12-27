@@ -330,6 +330,41 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public static CookieCollection LookupCookiesForUri(this HttpClient client, Uri uri) => client?.CookieContainer?.GetCookies(uri);
 
+		/// <summary>
+		/// 使用指定的代理服务器
+		/// </summary>
+		/// <param name="client"></param>
+		/// <param name="proxy"></param>
+		/// <returns></returns>
+		public static HttpClient UseProxy(this HttpClient client, IWebProxy proxy)
+		{
+			client.Setting.Proxy = proxy;
+			return client;
+		}
+
+		/// <summary>
+		/// 使用指定的代理服务器
+		/// </summary>
+		/// <param name="client"></param>
+		/// <returns></returns>
+		public static HttpClient UseProxy(this HttpClient client, Uri uri, string username = null, string password = null, bool? bypassLocal = null)
+		{
+			if (uri == null)
+				client.UseProxy((IWebProxy)null);
+			else
+			{
+				var proxy = new WebProxy(uri);
+				if (!username.IsNullOrEmpty())
+				{
+					proxy.UseDefaultCredentials = false;
+					proxy.Credentials = new NetworkCredential(username, password);
+				}
+				if (bypassLocal.HasValue)
+					proxy.BypassProxyOnLocal = bypassLocal.Value;
+			}
+			return client;
+		}
+
 		#endregion
 
 		#region CookieCollection
@@ -353,6 +388,78 @@ namespace FSLib.Network.Http
 		/// <param name="name">Cookies名称</param>
 		/// <returns></returns>
 		public static Cookie FindResponseCookie(this HttpContext context, string name) => context?.Response.Cookies.FindByName(name);
+
+		/// <summary>
+		/// 查找指定的响应标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		public static string GetResponseHeader(this HttpContext context, string header) => context?.Response?.Headers?[header];
+
+		/// <summary>
+		/// 查找指定的响应标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		public static string GetResponseHeader(this HttpContext context, HttpResponseHeader header) => context?.Response?.Headers?[header];
+
+		/// <summary>
+		/// 查找指定的响应标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		public static string GetResponseHeader(this HttpContext context, int index) => context?.Response?.Headers?[index];
+
+
+		/// <summary>
+		/// 查找指定的请求标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		public static string GetWebRequestHeader(this HttpContext context, string header) => context?.WebRequest?.Headers?[header];
+
+		/// <summary>
+		/// 查找指定的请求标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		public static string GetWebRequestHeader(this HttpContext context, HttpResponseHeader header) => context?.WebRequest?.Headers?[header];
+
+		/// <summary>
+		/// 查找指定的请求标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		public static string GetWebRequestHeader(this HttpContext context, int index) => context?.WebRequest?.Headers?[index];
+		/// <summary>
+		/// 查找指定的请求标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		public static string GetRequestHeader(this HttpContext context, string header) => context?.Request?.Headers?[header];
+
+		/// <summary>
+		/// 查找指定的请求标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="header"></param>
+		/// <returns></returns>
+		public static string GetRequestHeader(this HttpContext context, HttpResponseHeader header) => context?.Request?.Headers?[header];
+
+		/// <summary>
+		/// 查找指定的请求标头
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		public static string GetRequestHeader(this HttpContext context, int index) => context?.Request?.Headers?[index];
 
 		#endregion
 
