@@ -144,7 +144,7 @@ namespace FSLib.Network.Http
 		/// <param name="buffer">字节数组。此方法返回时，该缓冲区包含指定的字符数组，该数组的 <paramref name="offset"/> 和 (<paramref name="offset"/> + <paramref name="count"/> -1) 之间的值由从当前源中读取的字节替换。</param><param name="offset"><paramref name="buffer"/> 中的从零开始的字节偏移量，从此处开始存储从当前流中读取的数据。</param><param name="count">要从当前流中最多读取的字节数。</param><exception cref="T:System.ArgumentException"><paramref name="offset"/> 与 <paramref name="count"/> 的和大于缓冲区长度。</exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> 为 null。</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> 或 <paramref name="count"/> 为负。</exception><exception cref="T:System.IO.IOException">发生 I/O 错误。</exception><exception cref="T:System.NotSupportedException">流不支持读取。</exception><exception cref="T:System.ObjectDisposedException">在流关闭后调用方法。</exception><filterpriority>1</filterpriority>
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			var readCount = BaseStream.Read(buffer, 0, count);
+			var readCount = BaseStream.Read(buffer, offset, count);
 			if (_enableClone)
 				MirrorStream.Write(buffer, offset, readCount);
 			_position += readCount;
@@ -158,7 +158,7 @@ namespace FSLib.Network.Http
 		/// <param name="buffer">字节数组。此方法将 <paramref name="count"/> 个字节从 <paramref name="buffer"/> 复制到当前流。</param><param name="offset"><paramref name="buffer"/> 中的从零开始的字节偏移量，从此处开始将字节复制到当前流。</param><param name="count">要写入当前流的字节数。</param><exception cref="T:System.ArgumentException"><paramref name="offset"/> 与 <paramref name="count"/> 的和大于缓冲区长度。</exception><exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> 为 null。</exception><exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> 或 <paramref name="count"/> 为负。</exception><exception cref="T:System.IO.IOException">发生 I/O 错误。</exception><exception cref="T:System.NotSupportedException">流不支持写入。</exception><exception cref="T:System.ObjectDisposedException">在流关闭后调用方法。</exception><filterpriority>1</filterpriority>
 		public override void Write(byte[] buffer, int offset, int count)
 		{
-			BaseStream.Write(buffer, 0, count);
+			BaseStream.Write(buffer, offset, count);
 			if (_enableClone)
 				MirrorStream.Write(buffer, offset, count);
 			_position += count;
