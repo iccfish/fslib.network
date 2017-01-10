@@ -88,18 +88,18 @@ namespace FSLib.Network.Http
 			ef.RemoteEndPoint = remoteEndPoint;
 			ef.ServicePoint = servicePoint;
 
-			IPEndPoint localEndPoint;
+			IPEndPoint localEndPoint = null;
+			var addFamily = remoteEndPoint.AddressFamily;
+
 			if (context.Request.LocalIpEndPoint != null)
 				localEndPoint = context.Request.LocalIpEndPoint;
-			else if (remoteEndPoint.AddressFamily == AddressFamily.InterNetwork && context.Client.Setting.LocalIpAddressIpV4 != null)
+			else if (addFamily == AddressFamily.InterNetwork && context.Client.Setting.LocalIpAddressIpV4 != null)
 				localEndPoint = new IPEndPoint(context.Client.Setting.LocalIpAddressIpV4, 0);
-			else if (remoteEndPoint.AddressFamily == AddressFamily.InterNetworkV6 && context.Client.Setting.LocalIpAddressIpV6 != null)
+			else if (addFamily == AddressFamily.InterNetworkV6 && context.Client.Setting.LocalIpAddressIpV6 != null)
 				localEndPoint = new IPEndPoint(context.Client.Setting.LocalIpAddressIpV6, 0);
-			else
-				localEndPoint = new IPEndPoint(remoteEndPoint.AddressFamily == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, 0);
 
-			if (remoteEndPoint.AddressFamily != localEndPoint.AddressFamily)
-				throw new IPAddressFamilyMismatchException(remoteEndPoint, localEndPoint);
+			//if (remoteEndPoint.AddressFamily != localEndPoint.AddressFamily)
+			//	throw new IPAddressFamilyMismatchException(remoteEndPoint, localEndPoint);
 			ef.LocalEndPoint = localEndPoint;
 
 			return localEndPoint;
@@ -137,7 +137,7 @@ namespace FSLib.Network.Http
 			client.Setting.CertificateManager?.SetRequest(request);
 
 			var ctx = new HttpContext(client, request);
-			
+
 			//附加监听器
 			if (client.Monitor != null)
 				ctx.AttachMonitor(client.Monitor);
@@ -274,7 +274,7 @@ namespace FSLib.Network.Http
 		/// <param name="e"></param>
 		public void OnServerCertificateValidation(object sender, CertificateValidationEventArgs e)
 		{
-			
+
 		}
 
 		/// <summary>
