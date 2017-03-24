@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "FSLib.Network", "FSLib.Network\FSLib.Network.xproj", "{E8F9E37E-6059-4DBE-A938-3308797A5CAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSLib.Network", "FSLib.Network\FSLib.Network.csproj", "{EBE3449A-CCAF-477A-AA41-2449420C8BF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E8F9E37E-6059-4DBE-A938-3308797A5CAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8F9E37E-6059-4DBE-A938-3308797A5CAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8F9E37E-6059-4DBE-A938-3308797A5CAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8F9E37E-6059-4DBE-A938-3308797A5CAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBE3449A-CCAF-477A-AA41-2449420C8BF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBE3449A-CCAF-477A-AA41-2449420C8BF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBE3449A-CCAF-477A-AA41-2449420C8BF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBE3449A-CCAF-477A-AA41-2449420C8BF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
