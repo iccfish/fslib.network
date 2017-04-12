@@ -65,16 +65,10 @@ namespace FSLib.Network.Http
 
 					xml = tw.ToString();
 				}
+				else xml = obj.XmlSerializeToString();
 			}
 
-			var document = obj as XmlDocument;
-			if (document != null)
-				return document.OuterXml;
-			var node = obj as XmlNode;
-			if (node != null)
-				return node.OuterXml;
-
-			return obj.XmlSerializeToString();
+			return xml;
 		}
 
 		#region Overrides of HttpRequestContent
