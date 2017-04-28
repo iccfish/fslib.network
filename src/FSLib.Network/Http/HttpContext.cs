@@ -1162,8 +1162,8 @@ namespace FSLib.Network.Http
 				uri = HttpUtility.ChangeHost(uri, WebRequest.Host);
 			}
 #endif
-			if (WebResponse.ResponseUri != uri)
-				Response.Redirection = new HttpRedirection(uri, WebResponse.ResponseUri);
+			if (WebRequest.Address != uri)
+				Response.Redirection = new HttpRedirection(uri, WebRequest.Address);
 			else if (WebResponse.IsRedirectHttpWebResponse())
 			{
 				var location = Response.Location;
