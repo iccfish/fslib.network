@@ -33,7 +33,7 @@ namespace FSLib.Network.Http
 			ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
 			{
 				if (!(sender is HttpWebRequest))
-					return sslPolicyErrors!= SslPolicyErrors.None;
+					return sslPolicyErrors == SslPolicyErrors.None;
 
 				var e = new CertificateValidationEventArgs((HttpWebRequest)sender, sslPolicyErrors, chain, certificate);
 				OnServerCertificateValidation(sender, e);
