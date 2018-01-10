@@ -65,22 +65,35 @@ namespace FSLib.Network.Http
 			}
 
 			if (ContentType == ContentType.FormUrlEncoded)
+			{
 				ProcessedData = ProcessedData ?? StringField.Where(s => s.Value != null).ToDictionary(s => System.Web.HttpUtility.UrlEncode(s.Key, Message.Encoding), s => System.Web.HttpUtility.UrlEncode(s.Value, Message.Encoding));
+				SerializeDataAsQueryString();
+			}
 			else
 			{
 				ProcessedData = ProcessedData ?? StringField.Where(s => s.Value != null).ToDictionary(s => s.Key, s => s.Value);
 			}
 		}
 
+		protected virtual void SerializeDataAsQueryString()
+		{
+			SerializedDataString = ProcessedData.Select(s => s.Key + "=" + s.Value).Join("&");
+		}
+
 		/// <summary>
 		/// 获得附加的文件列表
 		/// </summary>
-		public List<HttpPostFile> PostedFile { get; private set; }
+		public List<HttpPostFile> PostedFile { get; protected set; }
 
 		/// <summary>
 		/// 已处理(转义)后的数据
 		/// </summary>
-		public Dictionary<string, string> ProcessedData { get; private set; }
+		public Dictionary<string, string> ProcessedData { get; protected set; }
+
+		/// <summary>
+		/// 获得序列化之后的数据
+		/// </summary>
+		public string SerializedDataString { get; protected set; }
 
 		/// <summary>
 		/// 获得或设置请求的分界
@@ -105,7 +118,10 @@ namespace FSLib.Network.Http
 			}
 			if (ProcessedData.Count == 0)
 				return string.Empty;
-			return ProcessedData.Select(s => s.Key + "=" + s.Value).Join("&");
+			if (SerializedDataString == null)
+				SerializeDataAsQueryString();
+			
+			return SerializedDataString;
 		}
 
 		/// <summary>
@@ -137,7 +153,7 @@ namespace FSLib.Network.Http
 			}
 			else
 			{
-				stream.Write((ContentType == ContentType.FormUrlEncoded ? System.Text.Encoding.ASCII : Message.Encoding).GetBytes(ProcessedData.Where(s => s.Value != null).Select(s => s.Key + "=" + s.Value).Join("&")));
+				stream.Write((ContentType == ContentType.FormUrlEncoded ? System.Text.Encoding.ASCII : Message.Encoding).GetBytes(SerializedDataString));
 			}
 		}
 
@@ -152,7 +168,7 @@ namespace FSLib.Network.Http
 			//异步写入的时候，如果没有文件，则一次性写入
 			if (ContentType == ContentType.FormUrlEncoded)
 			{
-				asyncData.AsyncStreamWrite((ContentType == ContentType.FormUrlEncoded ? System.Text.Encoding.ASCII : Message.Encoding).GetBytes(ProcessedData.Where(s => s.Value != null).Select(s => s.Key + "=" + s.Value).Join("&")), false, null);
+				asyncData.AsyncStreamWrite((ContentType == ContentType.FormUrlEncoded ? System.Text.Encoding.ASCII : Message.Encoding).GetBytes(SerializedDataString), false, null);
 				return;
 			}
 
@@ -244,7 +260,15 @@ namespace FSLib.Network.Http
 			}
 			else
 			{
-				return Math.Max(0, ProcessedData.Select(s => s.Key.Length + 1 + (s.Value == null ? 0 : (ContentType == ContentType.FormUrlEncoded ? s.Value.Length : Message.Encoding.GetByteCount(s.Value)))).Sum() + ProcessedData.Count - 1);
+				if (ContentType == ContentType.FormUrlEncoded)
+				{
+					return SerializedDataString.Length;
+				}
+				else
+				{
+					return Math.Max(0, ProcessedData.Select(s => s.Key.Length + 1 + (s.Value == null ? 0 : (ContentType == ContentType.FormUrlEncoded ? s.Value.Length : Message.Encoding.GetByteCount(s.Value)))).Sum() + ProcessedData.Count - 1);
+
+				}
 			}
 		}
 

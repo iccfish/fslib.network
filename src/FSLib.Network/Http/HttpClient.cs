@@ -404,36 +404,36 @@ namespace FSLib.Network.Http
 				}
 				else if (data is string)
 				{
-					content = new RequestStringContent(data as string, type);
+					content = WrapRequestDataToStringContent(data as string, type);
 				}
 				else if (data is Stream)
 				{
-					content = new RequestCopyStreamContent(data as Stream, type);
+					content = WrapRequestDataToStreamContent(data as Stream, type);
 				}
 				else if (data is byte[])
 				{
-					content = new RequestByteBufferContent(data as byte[], contentType: type);
+					content = WrapRequestDataToByteBufferContent(data as byte[], type);
 				}
 				else if (data is IDictionary<string, string> && type != ContentType.Json)
 				{
-					content = new RequestFormDataContent(data as IDictionary<string, string>, type);
+					content = WrapRequestDataToFormDataContent(data as IDictionary<string, string>, type);
 				}
 				else if (data is XmlDocument || data is XmlNode || data is System.Xml.Linq.XDocument)
 				{
-					content = new RequestXmlContent(data, contentType ?? ContentType.Xml);
+					content = WrapRequestDataToXmlContent(data, contentType ?? ContentType.Xml);
 				}
 				//object
 
 				else if (contentType == ContentType.Json)
 				{
-					content = new RequestJsonContent(data);
+					content = WrapRequestDataToJsonContent(data);
 				}
 				else if (contentType == ContentType.Xml)
 				{
-					content = new RequestXmlContent(data, type);
+					content = WrapRequestDataToXmlContent(data, type);
 				}
 				else
-					content = new RequestObjectContent<object>(data, type);
+					content = WrapRequestDataToObjectContent(data, type);
 			}
 
 			//全局事件
@@ -446,6 +446,66 @@ namespace FSLib.Network.Http
 
 			return content;
 		}
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="data"></param>
+		/// <param name="contentType"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToObjectContent<T>(T data, ContentType contentType) where T : class => new RequestObjectContent<T>(data, contentType);
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="contentType"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToFormDataContent(IDictionary<string, string> data, ContentType contentType) => new RequestFormDataContent(data, contentType);
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="contentType"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToStringContent(string data, ContentType contentType) => new RequestStringContent(data, contentType);
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="contentType"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToStreamContent(Stream data, ContentType contentType) => new RequestCopyStreamContent(data, contentType);
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="contentType"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToByteBufferContent(byte[] data, ContentType contentType) => new RequestByteBufferContent(data, contentType: contentType);
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="data"></param>
+		/// <param name="contentType"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToXmlContent<T>(T data, ContentType contentType) where T : class => new RequestXmlContent(data, contentType);
+
+
+		/// <summary>
+		/// 将数据包装为指定的请求对象
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public virtual HttpRequestContent WrapRequestDataToJsonContent<T>(T data) where T : class => new RequestJsonContent(data);
+
 
 		/// <summary>
 		/// 创建网络请求
@@ -604,7 +664,7 @@ namespace FSLib.Network.Http
 				request.ExceptType = GetPreferedResponseType(ctx, streamInvoker, result, targetStream, saveToFile);
 			}
 			request.ExtraRequestInfo = extra;
-			if(isXhr != null)
+			if (isXhr != null)
 				request.AppendAjaxHeader = isXhr.Value;
 			ctx.ContextData = contextData;
 			request.Headers = headers;

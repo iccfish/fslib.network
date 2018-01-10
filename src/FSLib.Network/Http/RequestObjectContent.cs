@@ -17,8 +17,6 @@ namespace FSLib.Network.Http
 	/// </summary>
 	public class RequestObjectContent<T> : RequestFormDataContent where T : class
 	{
-
-		bool _dataBinded;
 		private IFormDataKeyGenerator _keyGenerator;
 
 		/// <summary>
@@ -35,7 +33,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 绑定对象数据
 		/// </summary>
-		private void BindObject(object obj, string prefix = "", int level = 0)
+		protected virtual void BindObject(object obj, string prefix = "", int level = 0)
 		{
 			if (obj is IFormData)
 			{
@@ -202,9 +200,9 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public override void PrepareData()
 		{
-			if (!_dataBinded)
+			if (!DataBinded)
 			{
-				_dataBinded = true;
+				DataBinded = true;
 				BindObject(Object);
 			}
 
@@ -224,5 +222,7 @@ namespace FSLib.Network.Http
 		/// 获得要上传的对象
 		/// </summary>
 		public T Object { get; private set; }
+
+		protected bool DataBinded { get; set; }
 	}
 }

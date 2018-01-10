@@ -1,81 +1,72 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-	<Description>A strong http client for .NET with high usability</Description>
-	<Copyright>Copyright © 木鱼  2013-2016</Copyright>
-	<AssemblyTitle>FSLib.Network.Http (iFish's Network Library)</AssemblyTitle>
-	<VersionPrefix>2.2.2.0</VersionPrefix>
-	<Authors>iFish</Authors>
-	<TargetFrameworks>net35;net40;net45</TargetFrameworks>
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<AssemblyName>FSLib.Network</AssemblyName>
-	<AssemblyOriginatorKeyFile>../snk/fslib.network.snk</AssemblyOriginatorKeyFile>
-	<SignAssembly>true</SignAssembly>
-	<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-	<PackageId>FSLib.Network</PackageId>
-	<PackageTags>http;web;network;httpclient</PackageTags>
-	<PackageReleaseNotes>2.2.0.0</PackageReleaseNotes>
-	<PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
-	<RepositoryType>git</RepositoryType>
-	<RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
-	<GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-	<GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-	<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-	<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-	<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-	<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<DelaySign>False</DelaySign>
+    <Description>A strong http client for .NET with high usability</Description>
+    <Copyright>Copyright © 木鱼  2013-2016</Copyright>
+    <AssemblyTitle>FSLib.Network.Http (iFish's Network Library)</AssemblyTitle>
+    <VersionPrefix>2.2.2.0</VersionPrefix>
+    <Authors>iFish</Authors>
+    <TargetFrameworks>net35;net40;net45</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>FSLib.Network</AssemblyName>
+    <AssemblyOriginatorKeyFile>../snk/fslib.network.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>FSLib.Network</PackageId>
+    <PackageTags>http;web;network;httpclient</PackageTags>
+    <PackageReleaseNotes>2.2.0.0</PackageReleaseNotes>
+    <PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <DelaySign>False</DelaySign>
   </PropertyGroup>
-
   <ItemGroup>
-	  <Content Include="content\**\*" PackagePath="%(Identity)" />
+    <Content Include="content\**\*" PackagePath="%(Identity)" />
   </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
-	<PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
-	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-	<Reference Include="System.Core" />
-	<Reference Include="System.Drawing" />
-	<Reference Include="System.Web" />
-	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq" />
-	<Reference Include="System" />
+    <PackageReference Include="extension.fishlee.net" Version="1.4.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta2" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System" />
   </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-	<PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
-	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-	<Reference Include="System.Drawing" />
-	<Reference Include="System.Web" />
-	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq" />
-	<Reference Include="System" />
-	<Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
-	<DefineConstants>$(DefineConstants);NET35</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET35</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-	<DefineConstants>$(DefineConstants);NET40;NET_GT_4</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET40;NET_GT_4</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
-	<DefineConstants>$(DefineConstants);NET45;NET_GT_4;NET_GT_45</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET45;NET_GT_4;NET_GT_45</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-	<PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
-	<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-	<Reference Include="System.Drawing" />
-	<Reference Include="System.Web" />
-	<Reference Include="System.Xml" />
-	<Reference Include="System.Xml.Linq" />
-	<Reference Include="System" />
-	<Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
 </Project>
