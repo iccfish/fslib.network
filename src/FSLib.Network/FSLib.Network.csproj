@@ -59,6 +59,9 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45;NET_GT_4;NET_GT_45</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />

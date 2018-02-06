@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011 rubicon IT GmbH
+// Copyright (c) 2011 rubicon IT GmbH
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -1127,19 +1127,6 @@ namespace FSLib.Network.Http
 				return;
 			}
 			ConnectionInfo.SetRequest(WebRequest, WebResponse);
-
-			try
-			{
-				OnPreviewResponseHeader();
-				OnValidateResponseHeader();
-				Client.HttpHandler.ValidateResponse(this);
-			}
-			catch (Exception ex)
-			{
-				WebRequest.Abort();
-				SetException(ex);
-				return;
-			}
 			if (Response == null)
 				Response = new HttpResponseMessage(WebResponse);
 
@@ -1220,6 +1207,18 @@ namespace FSLib.Network.Http
 				}
 			}
 
+			try
+			{
+				OnPreviewResponseHeader();
+				OnValidateResponseHeader();
+				Client.HttpHandler.ValidateResponse(this);
+			}
+			catch (Exception ex)
+			{
+				WebRequest.Abort();
+				SetException(ex);
+				return;
+			}
 			//处理响应
 			OnDetectResponseContentType();
 			if (Request.ExceptType == null)
@@ -1766,7 +1765,7 @@ namespace FSLib.Network.Http
 			{
 				if (ResponseContent == null)
 				{
-					throw new InvalidOperationException(SR.HttpContext_Result_RequestNotComplete);
+					return default;
 				}
 
 				var t = typeof(T);
