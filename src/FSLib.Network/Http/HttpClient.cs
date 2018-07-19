@@ -85,6 +85,8 @@ namespace FSLib.Network.Http
 				if (!_contextMap.ContainsKey(context.WebRequest))
 				{
 					_contextMap.Add(context.WebRequest, context);
+				}
+			}
 
 					context.Disposed += (s, e) =>
 					{
@@ -95,8 +97,6 @@ namespace FSLib.Network.Http
 								_contextMap.Remove(ctx.WebRequest);
 						}
 					};
-				}
-			}
 		}
 
 #endif
@@ -667,7 +667,13 @@ namespace FSLib.Network.Http
 			if (isXhr != null)
 				request.AppendAjaxHeader = isXhr.Value;
 			ctx.ContextData = contextData;
+			if (headers?.Count > 0)
+			{
+				if (request.Headers == null)
 			request.Headers = headers;
+				else
+					headers.CopyTo(request.Headers);
+			}
 			request.AllowAutoRedirect = allowAutoRedirect ?? Setting.AllowAutoDirect;
 
 			return ctx;

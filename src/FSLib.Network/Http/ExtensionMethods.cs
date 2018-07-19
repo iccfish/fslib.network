@@ -313,6 +313,8 @@ namespace FSLib.Network.Http
 
 			return context;
 		}
+		
+		
 
 		/// <summary>
 		/// 在指定的HttpClient中查找与指定的Uri关联的所有Cookies
@@ -460,6 +462,21 @@ namespace FSLib.Network.Http
 		/// <param name="index"></param>
 		/// <returns></returns>
 		public static string GetRequestHeader(this HttpContext context, int index) => context?.Request?.Headers?[index];
+
+		/// <summary>
+		/// 将 <paramref name="collectionSrc"/> 中的头全部复制到 <paramref name="collectionDest"/> 中
+		/// </summary>
+		/// <param name="collectionSrc">来源</param>
+		/// <param name="collectionDest">目标</param>
+		/// <param name="overwrite">如果为 <langword>true</langword>，则 <paramref name="collectionSrc"/> 中的同名标头将会覆盖 <paramref name="collectionDest"/> 中的值</param>
+		public static void CopyTo(this WebHeaderCollection collectionSrc, WebHeaderCollection collectionDest, bool overwrite = true)
+		{
+			foreach (string header in collectionSrc)
+			{
+				if (collectionDest.Get(header).IsNullOrEmpty() || overwrite)
+					collectionDest.Set(header, collectionSrc[header]);
+			}
+		}
 
 		#endregion
 

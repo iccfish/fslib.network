@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // 特性集控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("iFish's Network Library (HTTP)")]
-[assembly: AssemblyDescription("A light weight network library for .net 3.5/4.0/4.5 (HTTP)")]
+[assembly: AssemblyDescription("A light weight network library for .net 4.0/4.5 (HTTP)")]
 [assembly: AssemblyCompany("iFish(木鱼)")]
 [assembly: AssemblyProduct("iFish's Network Library (HTTP)")]
-[assembly: AssemblyCopyright("Copyright © iFish(木鱼) 2013-2016")]
+[assembly: AssemblyCopyright("Copyright © iFish(木鱼) 2013-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // 可以指定所有这些值，也可以使用“生成号”和“修订号”的默认值，
 // 方法是按如下所示使用“*”:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.2.0.0")]
-[assembly: AssemblyFileVersion("2.2.2.2")]
+[assembly: AssemblyVersion("2.2.5.0")]
+[assembly: AssemblyFileVersion("2.2.5.0")]

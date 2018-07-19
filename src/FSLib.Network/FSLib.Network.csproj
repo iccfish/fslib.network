@@ -11,9 +11,9 @@
     <AssemblyOriginatorKeyFile>../snk/fslib.network.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>FSLib.Network</PackageId>
+    <PackageId>network.fishlee.net</PackageId>
     <PackageTags>http;web;network;httpclient</PackageTags>
-    <PackageReleaseNotes>2.2.0.0</PackageReleaseNotes>
+    <PackageReleaseNotes>修正版本号</PackageReleaseNotes>
     <PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
@@ -31,8 +31,8 @@
     <Content Include="content\**\*" PackagePath="%(Identity)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <PackageReference Include="extension.fishlee.net" Version="1.4.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta2" />
+    <PackageReference Include="extension.fishlee.net" Version="1.4.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -41,8 +41,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="extension.fishlee.net" Version="1.4.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -61,10 +61,11 @@
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+    <Version>2.2.5.0</Version>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <PackageReference Include="extension.fishlee.net" Version="1.4.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="extension.fishlee.net" Version="1.4.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
