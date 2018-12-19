@@ -22,3 +22,5 @@ VSDoc
 .cr
 csprojs
 FSLibNetworkShared*
+.idea/
+.vscode/
