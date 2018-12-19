@@ -17,38 +17,21 @@
     <PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <DelaySign>False</DelaySign>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="content\**\*" PackagePath="%(Identity)" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <PackageReference Include="extension.fishlee.net" Version="1.4.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  <ItemGroup>
+    <PackageReference Include="extension.fishlee.net" Version="1.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <PackageReference Include="extension.fishlee.net" Version="1.4.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
     <DefineConstants>$(DefineConstants);NET35</DefineConstants>
@@ -61,16 +44,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <Version>2.2.5.0</Version>
+    <Version>2.3.0.0</Version>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <PackageReference Include="extension.fishlee.net" Version="1.4.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
 </Project>

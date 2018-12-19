@@ -80,7 +80,7 @@ namespace FSLib.Network.Http
                 _speedTimer.Start();
                 OnPerformanceUpdated();
             };
-            _context.RequestSended += (s, e) =>
+            _context.RequestSent += (s, e) =>
             {
                 _speedTimer.Stop();
                 var ticks = DateTime.Now.Ticks - _startTicks;

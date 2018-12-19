@@ -8,8 +8,9 @@ using System.Text;
 namespace FSLib.Network.Http
 {
 	using System.Diagnostics;
-	using System.FishLib;
 	using System.Net;
+
+	using Extension.FishLib;
 
 	/// <summary>
 	/// 保存为文件的响应

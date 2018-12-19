@@ -137,6 +137,33 @@ namespace FSLib.Network.Http
 		{
 			return Create<T>(HttpMethod.Post, uri, refer, data, allowAutoRedirect: allowAutoRedirect, contentType: usingJsonBody == true ? ContentType.Json : usingJsonBody == false ? (ContentType?)ContentType.FormUrlEncoded : null);
 		}
+
+		/// <summary>
+		/// 以Post模式发送一个JSON内容的请求
+		/// </summary>
+		/// <typeparam name="TRequest"></typeparam>
+		/// <typeparam name="TResult"></typeparam>
+		/// <param name="url"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public HttpContext<TResult> PostJson<TRequest, TResult>(string url, TRequest data) where TResult : class
+		{
+			return Create<TResult>(HttpMethod.Post, url, data: data, contentType: ContentType.Json);
+		}
+
+		/// <summary>
+		/// 以Post模式发送一个JSON内容的请求
+		/// </summary>
+		/// <typeparam name="TRequest"></typeparam>
+		/// <typeparam name="TResult"></typeparam>
+		/// <param name="url"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public HttpContext<TResult> PutJson<TRequest, TResult>(string url, TRequest data) where TResult : class
+		{
+			return Create<TResult>(HttpMethod.Put, url, data: data, contentType: ContentType.Json);
+		}
+
 		/// <summary>
 		/// 发起一个期望结果类型为 <see cref="Array"/> 的请求
 		/// </summary>
@@ -146,7 +173,7 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public HttpContext<byte[]> PostData(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
+		public HttpContext<byte[]> PostForData(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
 		{
 			return Post<byte[]>(uri, data, refer, usingJsonBody, allowAutoRedirect);
 		}
@@ -160,9 +187,9 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public byte[] PostDataResult(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
+		public byte[] PostForDataResult(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
 		{
-			return PostResult<byte[]>(uri, data, refer, usingJsonBody, allowAutoRedirect);
+			return PostForResult<byte[]>(uri, data, refer, usingJsonBody, allowAutoRedirect);
 		}
 		/// <summary>
 		/// 发起一个期望结果类型为 <see cref="Image"/> 的请求
@@ -173,7 +200,7 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public HttpContext<Image> PostImage(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
+		public HttpContext<Image> PostForImage(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
 		{
 			return Post<Image>(uri, data, refer, usingJsonBody, allowAutoRedirect);
 		}
@@ -187,9 +214,9 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public Image PostImageResult(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
+		public Image PostForImageResult(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
 		{
-			return PostResult<Image>(uri, data, refer, usingJsonBody, allowAutoRedirect);
+			return PostForResult<Image>(uri, data, refer, usingJsonBody, allowAutoRedirect);
 		}
 
 		/// <summary>
@@ -202,7 +229,7 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public T PostResult<T>(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null) where T : class
+		public T PostForResult<T>(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null) where T : class
 		{
 			var ctx = Create<T>(HttpMethod.Post, uri, refer, data, allowAutoRedirect: allowAutoRedirect, contentType: usingJsonBody == true ? ContentType.Json : usingJsonBody == false ? (ContentType?)ContentType.FormUrlEncoded : null);
 			ctx.Send();
@@ -218,7 +245,7 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public HttpContext<string> PostString(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
+		public HttpContext<string> PostForString(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
 		{
 			return Post<string>(uri, data, refer, usingJsonBody, allowAutoRedirect);
 		}
@@ -232,9 +259,9 @@ namespace FSLib.Network.Http
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public string PostStringResult(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
+		public string PostForStringResult(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null)
 		{
-			return PostResult<string>(uri, data, refer, usingJsonBody, allowAutoRedirect);
+			return PostForResult<string>(uri, data, refer, usingJsonBody, allowAutoRedirect);
 		}
 		/// <summary>
 		/// 带重试的发送请求，直到判定成功或者超过次数。

@@ -158,6 +158,19 @@ namespace FSLib.Network.Http
 		}
 
 		/// <summary>
+		/// 设置引用
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="context"></param>
+		/// <param name="refer"></param>
+		/// <returns></returns>
+		public static HttpContext<T> Referer<T>(this HttpContext<T> context, string refer) where T : class
+		{
+			context.Request.Referer = refer;
+			return context;
+		}
+
+		/// <summary>
 		/// 添加额外的标头（此方法用于添加额外的标头，特殊的标头需要直接设置相关属性）
 		/// </summary>
 		/// <param name="context"></param>
@@ -313,8 +326,8 @@ namespace FSLib.Network.Http
 
 			return context;
 		}
-		
-		
+
+
 
 		/// <summary>
 		/// 在指定的HttpClient中查找与指定的Uri关联的所有Cookies
@@ -477,6 +490,30 @@ namespace FSLib.Network.Http
 					collectionDest.Set(header, collectionSrc[header]);
 			}
 		}
+
+
+		/// <summary>
+		/// 设置响应发送类型
+		/// </summary>
+		/// <param name="contentType"></param>
+		public static HttpContext<T> SetRequestContentType<T>(this HttpContext<T> context, string contentType) where T : class
+		{
+			context.RequestContent?.SetContentType(contentType);
+
+			return context;
+		}
+
+		/// <summary>
+		/// 设置响应发送类型
+		/// </summary>
+		/// <param name="contentType"></param>
+		public static HttpContext<T> SetRequestContentType<T>(this HttpContext<T> context, ContentType contentType) where T : class
+		{
+			if (context.RequestContent != null) context.RequestContent.ContentType = contentType;
+
+			return context;
+		}
+
 
 		#endregion
 

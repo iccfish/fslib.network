@@ -7,7 +7,9 @@ using System.Text;
 namespace FSLib.Network.Http
 {
 	using System.Text.RegularExpressions;
-	using IO.SerializeHelper;
+
+	using Extension.FishLib;
+
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Linq;
 

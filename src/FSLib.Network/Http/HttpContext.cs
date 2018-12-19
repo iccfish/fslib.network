@@ -1,11 +1,11 @@
 // Copyright (c) 2011 rubicon IT GmbH
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.FishExtension;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,9 +17,12 @@ using System.Net.Security;
 namespace FSLib.Network.Http
 {
 	using System.Diagnostics;
+
+	using Extension.FishLib;
+
 	using Newtonsoft.Json;
 
-	using System.FishLib;
+
 #if NET_GT_4
 	using System.Threading.Tasks;
 #endif
@@ -34,6 +37,7 @@ namespace FSLib.Network.Http
 
 		Dictionary<string, object> _contextData;
 		AsyncOperation _operation;
+		WebEventArgs _ctxEventArgs;
 
 		HttpPerformance _performance;
 
@@ -53,7 +57,9 @@ namespace FSLib.Network.Http
 			Client = client;
 			Request = request;
 
-			client.OnHttpContextCreated(new WebEventArgs(this));
+			_ctxEventArgs = new WebEventArgs(this);
+
+			client.OnHttpContextCreated(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -76,6 +82,11 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public event EventHandler RequestCreated;
 
+		/// <summary>
+		/// 即将开始准备发送请求
+		/// </summary>
+		public event EventHandler BeforeRequest;
+
 		void SendEntryPoint()
 		{
 			if (CheckCancellation() || CheckException())
@@ -89,9 +100,8 @@ namespace FSLib.Network.Http
 			if (AutoStartSpeedMonitor)
 				Performance.EnableSpeedMonitor();
 
-			var we = new WebEventArgs(this);
-			Client.OnBeforeRequest(we);
-			if (we.Cancelled)
+			Client.OnBeforeRequest(_ctxEventArgs);
+			if (_ctxEventArgs.Cancelled)
 			{
 				Cancelled = true;
 				CheckCancellation();
@@ -129,6 +139,7 @@ namespace FSLib.Network.Http
 			{
 				Request.RequestData.Prepare(WebRequest);
 				Client.HttpHandler.AfterRequestDataPrepared(this);
+				Client.HttpHandler.OnRequestDataPrepared(_ctxEventArgs);
 				WriteRequestData();
 			}
 			else
@@ -150,8 +161,8 @@ namespace FSLib.Network.Http
 		/// <param name="e"></param>
 		internal void OnServerCertificateValidation(CertificateValidationEventArgs e)
 		{
-			Client.HttpHandler.OnServerCertificateValidation(this, e);
 			ServerCertificateValidation?.Invoke(this, e);
+			Client.HttpHandler.OnServerCertificateValidation(this, e);
 		}
 
 
@@ -261,13 +272,14 @@ namespace FSLib.Network.Http
 			else
 			{
 				_operation.PostOperationCompleted(_ =>
-				{
-					if (Cancelled)
-						OnRequestCancelled();
+					{
+						if (Cancelled)
+							OnRequestCancelled();
 
-					OnRequestFailed();
-					OnRequestEnd();
-				}, null);
+						OnRequestFailed();
+						OnRequestEnd();
+					},
+					null);
 				_operation = null;
 			}
 
@@ -275,6 +287,7 @@ namespace FSLib.Network.Http
 			{
 				Client.OnRequestCancelled(new WebEventArgs(this));
 			}
+
 			Client.OnRequestFailed(new WebEventArgs(this));
 		}
 
@@ -287,10 +300,11 @@ namespace FSLib.Network.Http
 			if (_operation != null)
 			{
 				_operation.PostOperationCompleted(_ =>
-				{
-					OnRequestFinished();
-					OnRequestEnd();
-				}, null);
+					{
+						OnRequestFinished();
+						OnRequestEnd();
+					},
+					null);
 				_operation = null;
 			}
 			else
@@ -298,6 +312,7 @@ namespace FSLib.Network.Http
 				OnRequestFinished();
 				OnRequestEnd();
 			}
+
 			Client.OnRequestSuccess(new WebEventArgs(this));
 		}
 
@@ -312,6 +327,7 @@ namespace FSLib.Network.Http
 		protected virtual void OnDetectResponseContentType()
 		{
 			DetectResponseContentType?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnDetectResponseContentType(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -320,6 +336,7 @@ namespace FSLib.Network.Http
 		protected virtual void OnPerformanceObjectCreated()
 		{
 			PerformanceObjectCreated?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnPerformanceObjectCreated(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -330,6 +347,7 @@ namespace FSLib.Network.Http
 			var handler = RequestCancelled;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestCancelled(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -340,16 +358,19 @@ namespace FSLib.Network.Http
 			var handler = RequestCreated;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestCreated(_ctxEventArgs);
+			Client.HttpHandler.OnRequestCreated(_ctxEventArgs);
 		}
 
 		/// <summary>
-		/// 引发 <see cref="RequestDataSended" /> 事件
+		/// 引发 <see cref="RequestDataSent" /> 事件
 		/// </summary>
-		protected virtual void OnRequestDataSended()
+		protected virtual void OnRequestDataSent()
 		{
-			var handler = RequestDataSended;
+			var handler = RequestDataSent;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestDataSent(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -360,6 +381,7 @@ namespace FSLib.Network.Http
 			var handler = RequestDataSending;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestDataSending(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -371,6 +393,7 @@ namespace FSLib.Network.Http
 			var handler = RequestDataSendProgressChanged;
 			if (handler != null)
 				handler(this, ea);
+			Client.HttpHandler.OnRequestDataSendProgressChanged(this, ea);
 		}
 
 		/// <summary>
@@ -381,6 +404,7 @@ namespace FSLib.Network.Http
 			var handler = RequestFailed;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestFailed(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -391,6 +415,7 @@ namespace FSLib.Network.Http
 			var handler = RequestFinished;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestFinished(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -401,6 +426,7 @@ namespace FSLib.Network.Http
 			var handler = RequestRedirect;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestRedirect(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -409,17 +435,20 @@ namespace FSLib.Network.Http
 		protected virtual void OnRequestResubmit()
 		{
 			RequestResubmit?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestResubmit(_ctxEventArgs);
 		}
 
 		/// <summary>
-		/// 引发 <see cref="RequestSended" /> 事件
+		/// 引发 <see cref="RequestSent" /> 事件
 		/// </summary>
 		protected virtual void OnRequestSended()
 		{
-			var handler = RequestSended;
+			var handler = RequestSent;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestSent(_ctxEventArgs);
 		}
+
 		/// <summary>
 		/// 触发 <see cref="RequestSending"/> 事件
 		/// </summary>
@@ -427,6 +456,7 @@ namespace FSLib.Network.Http
 		{
 			EventHandler handler = RequestSending;
 			if (handler != null) handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestSending(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -437,6 +467,7 @@ namespace FSLib.Network.Http
 			var handler = RequestStreamFetched;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestStreamFetched(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -450,13 +481,16 @@ namespace FSLib.Network.Http
 			}
 
 			RequestValidateResponse?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnRequestValidateResponse(_ctxEventArgs);
 		}
+
 		/// <summary>
 		/// 引发 <see cref="ResponseDataReceiveCompleted"/>
 		/// </summary>
 		protected virtual void OnResponseDataReceiveCompleted()
 		{
 			ResponseDataReceiveCompleted?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnResponseDataReceiveCompleted(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -464,9 +498,16 @@ namespace FSLib.Network.Http
 		/// </summary>
 		protected virtual void OnResponseHeaderReceived()
 		{
-			var handler = ResponseHeaderReceived;
-			if (handler != null)
-				handler(this, EventArgs.Empty);
+			try
+			{
+				var handler = ResponseHeaderReceived;
+				handler?.Invoke(this, EventArgs.Empty);
+				Client.HttpHandler.OnResponseHeaderReceived(_ctxEventArgs);
+			}
+			catch (Exception e)
+			{
+				SetException(e);
+			}
 		}
 
 		/// <summary>
@@ -478,6 +519,7 @@ namespace FSLib.Network.Http
 			var handler = ResponseReadProgressChanged;
 			if (handler != null)
 				handler(this, ea);
+			Client.HttpHandler.OnResponseReadProgressChanged(this, ea);
 		}
 
 		/// <summary>
@@ -488,6 +530,7 @@ namespace FSLib.Network.Http
 			var handler = ResponseStreamFetched;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
+			Client.HttpHandler.OnResponseStreamFetched(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -560,7 +603,6 @@ namespace FSLib.Network.Http
 			}
 			catch (Exception)
 			{
-
 			}
 		}
 
@@ -587,9 +629,10 @@ namespace FSLib.Network.Http
 					}
 
 					ThreadPool.QueueUserWorkItem(_ =>
-					{
-						SendEntryPoint();
-					}, null);
+						{
+							SendEntryPoint();
+						},
+						null);
 				}
 			}
 			else
@@ -602,10 +645,11 @@ namespace FSLib.Network.Http
 				else
 				{
 					ThreadPool.QueueUserWorkItem(_ =>
-					{
-						Thread.Sleep(SendDelay.Value);
-						SendEntryPoint();
-					}, null);
+						{
+							Thread.Sleep(SendDelay.Value);
+							SendEntryPoint();
+						},
+						null);
 				}
 			}
 
@@ -633,27 +677,6 @@ namespace FSLib.Network.Http
 		}
 
 		/// <summary>
-		/// 设置响应发送类型
-		/// </summary>
-		/// <param name="contentType"></param>
-		public void SetRequestContentType(string contentType)
-		{
-			RequestContent?.SetContentType(contentType);
-		}
-
-		/// <summary>
-		/// 设置响应发送类型
-		/// </summary>
-		/// <param name="contentType"></param>
-		public void SetRequestContentType(ContentType contentType)
-		{
-			if (RequestContent != null)
-			{
-				RequestContent.ContentType = contentType;
-			}
-		}
-
-		/// <summary>
 		/// 获得或设置是否默认启动速度计数器
 		/// <para>仅在请求未发送的时候有效</para>
 		/// </summary>
@@ -670,7 +693,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public bool CaptureContext
 		{
-			get { return _captureContext; }
+			get => _captureContext;
 			set
 			{
 				if (IsSended)
@@ -735,13 +758,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得是否成功
 		/// </summary>
-		public bool IsSuccess
-		{
-			get
-			{
-				return ResponseContent != null && Exception == null && ((int)Response.Status < 400 || Response.Status == HttpStatusCode.RequestedRangeNotSatisfiable);
-			}
-		}
+		public bool IsSuccess => ResponseContent != null && Exception == null && ((int)Response.Status < 400 || Response.Status == HttpStatusCode.RequestedRangeNotSatisfiable);
 
 		/// <summary>
 		/// 获得或设置JSON反序列化设置
@@ -753,6 +770,7 @@ namespace FSLib.Network.Http
 		/// 获得或设置JSON序列化设置
 		/// </summary>
 		public JsonSerializationSetting JsonSerializationSetting { get; set; }
+
 		/// <summary>
 		/// 获得附加的监听器
 		/// </summary>
@@ -773,7 +791,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public HttpPerformance Performance
 		{
-			get { return _performance; }
+			get => _performance;
 			private set
 			{
 				if (value == null || _performance == value)
@@ -803,6 +821,7 @@ namespace FSLib.Network.Http
 				{
 					return null;
 				}
+
 				if (Response == null)
 				{
 					return null;
@@ -832,8 +851,8 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public bool RequsetResubmit
 		{
-			get { return _requsetResubmit > 0; }
-			set { _requsetResubmit = value ? 1 : 0; }
+			get => _requsetResubmit > 0;
+			set => _requsetResubmit = value ? 1 : 0;
 		}
 
 		/// <summary>
@@ -880,11 +899,10 @@ namespace FSLib.Network.Http
 
 
 #if NET_GT_4
-
-		/// <summary>
-		/// 以任务模式发送请求
-		/// </summary>
-		/// <returns></returns>
+/// <summary>
+/// 以任务模式发送请求
+/// </summary>
+/// <returns></returns>
 		public Task<HttpResponseContent> SendAsync()
 		{
 			return SendAsync(new CancellationToken());
@@ -942,13 +960,14 @@ namespace FSLib.Network.Http
 			if (Request.Async)
 			{
 				var result = WebRequest.BeginGetRequestStream(_ => WriteRequestData(() =>
-				  {
-					  TransportContext context;
-					  var stream = WebRequest.EndGetRequestStream(_, out context);
-					  Request.TransportContext = context;
+					{
+						TransportContext context;
+						var stream = WebRequest.EndGetRequestStream(_, out context);
+						Request.TransportContext = context;
 
-					  return stream;
-				  }), this);
+						return stream;
+					}),
+					this);
 
 				if (Request.Timeout.HasValue)
 					ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), this, Request.Timeout.Value, true);
@@ -1010,34 +1029,37 @@ namespace FSLib.Network.Http
 			else
 			{
 				OnRequestStreamFetched();
-				OnRequestDataSended();
+				OnRequestDataSent();
 			}
 
 			if (Request.Async)
 			{
-				var args = new AsyncStreamProcessData(embedStream, this, _ =>
-				{
-					try
+				var args = new AsyncStreamProcessData(embedStream,
+					this,
+					_ =>
 					{
-						stream.Close();
-					}
-					catch (Exception ex)
-					{
-						SetException(ex);
-						return;
-					}
-					if (_.Exception != null)
-					{
-						SetException(_.Exception);
-						return;
-					}
+						try
+						{
+							stream.Close();
+						}
+						catch (Exception ex)
+						{
+							SetException(ex);
+							return;
+						}
 
-					if (_operation == null)
-						OnRequestDataSended();
-					else
-						_operation.Post(s => OnRequestDataSended(), null);
-					FlushRequestData();
-				});
+						if (_.Exception != null)
+						{
+							SetException(_.Exception);
+							return;
+						}
+
+						if (_operation == null)
+							OnRequestDataSent();
+						else
+							_operation.Post(s => OnRequestDataSent(), null);
+						FlushRequestData();
+					});
 				Request.RequestData.WriteToAsync(args);
 			}
 			else
@@ -1054,9 +1076,9 @@ namespace FSLib.Network.Http
 				}
 
 				if (_operation == null)
-					OnRequestDataSended();
+					OnRequestDataSent();
 				else
-					_operation.Post(s => OnRequestDataSended(), null);
+					_operation.Post(s => OnRequestDataSent(), null);
 				FlushRequestData();
 			}
 		}
@@ -1126,6 +1148,7 @@ namespace FSLib.Network.Http
 				SetException(ex);
 				return;
 			}
+
 			ConnectionInfo.SetRequest(WebRequest, WebResponse);
 			if (Response == null)
 				Response = new HttpResponseMessage(WebResponse);
@@ -1159,6 +1182,7 @@ namespace FSLib.Network.Http
 					SetException(new ProtocolViolationException("是重定向的请求, 但是未提供新地址"));
 					return;
 				}
+
 				Response.Redirection = new HttpRedirection(uri, new Uri(WebRequest.Address, location));
 			}
 
@@ -1180,6 +1204,7 @@ namespace FSLib.Network.Http
 									headerCopy.Add(h);
 									continue;
 								}
+
 								if (!Regex.IsMatch(h, @"^[a-z\d-_]+=", RegexOptions.IgnoreCase))
 								{
 									headerCopy[headerCopy.Count - 1] += ", " + h;
@@ -1200,6 +1225,7 @@ namespace FSLib.Network.Http
 							}
 						}
 					}
+
 					//else
 					//{
 					//	Client.CookieContainer.Add(Response.ResponseUri, Response.Cookies);
@@ -1211,7 +1237,6 @@ namespace FSLib.Network.Http
 			{
 				OnPreviewResponseHeader();
 				OnValidateResponseHeader();
-				Client.HttpHandler.ValidateResponse(this);
 			}
 			catch (Exception ex)
 			{
@@ -1219,6 +1244,7 @@ namespace FSLib.Network.Http
 				SetException(ex);
 				return;
 			}
+
 			//处理响应
 			OnDetectResponseContentType();
 			if (Request.ExceptType == null)
@@ -1228,13 +1254,14 @@ namespace FSLib.Network.Http
 			}
 			else
 				Response.Content = Request.ExceptType;
-			Response.Content.Initialize();
-			OnResponseContentObjectIntialized();
 
 			//获得响应流
 			Stream responseStream;
 			try
 			{
+				Response.Content.Initialize();
+				OnResponseContentObjectIntialized();
+
 				var responseStreamRaw = WebResponse.GetResponseStream();
 				ConnectionInfo.SetStream(false, responseStreamRaw);
 				responseStream = Client.HttpHandler.DecorateRawResponseStream(this, responseStreamRaw);
@@ -1245,6 +1272,7 @@ namespace FSLib.Network.Http
 				SetException(ex);
 				return;
 			}
+
 			if (CheckCancellation() || CheckException())
 				return;
 
@@ -1300,35 +1328,39 @@ namespace FSLib.Network.Http
 				SetException(ex, true);
 				return;
 			}
+
 			ChangeReadyState(HttpContextState.WaitingResponseHeader, HttpContextState.ReadingResponse);
 			Performance.GotResponseStreamTime = DateTime.Now;
 
 			//同步或异步处理响应？
 			if (Request.Async)
 			{
-				var args = new AsyncStreamProcessData(responseStream, this, _ =>
-				{
-					try
+				var args = new AsyncStreamProcessData(responseStream,
+					this,
+					_ =>
 					{
-						responseStream.Close();
-					}
-					catch (Exception ex)
-					{
-						SetException(ex);
-						return;
-					}
-					finally
-					{
-						WebResponse.Close();
-					}
-					if (_.Exception != null)
-					{
-						SetException(_.Exception);
-						return;
-					}
+						try
+						{
+							responseStream.Close();
+						}
+						catch (Exception ex)
+						{
+							SetException(ex);
+							return;
+						}
+						finally
+						{
+							WebResponse.Close();
+						}
 
-					ResponseStreamProcessComplete();
-				});
+						if (_.Exception != null)
+						{
+							SetException(_.Exception);
+							return;
+						}
+
+						ResponseStreamProcessComplete();
+					});
 				ResponseContent.InternalProcessResponseAsync(args);
 			}
 			else
@@ -1385,6 +1417,7 @@ namespace FSLib.Network.Http
 				else
 					_operation.Post(_ => OnRequestRedirect(), null);
 			}
+
 			Performance.FinishResponseTime = DateTime.Now;
 			ChangeReadyState(HttpContextState.ValidatingResponse, HttpContextState.EndProcessResponse);
 
@@ -1396,7 +1429,6 @@ namespace FSLib.Network.Http
 		/// </summary>
 		protected virtual void CompleteRequest()
 		{
-
 			if (!SetReadyState(HttpContextState.Complete))
 				return;
 
@@ -1452,17 +1484,18 @@ namespace FSLib.Network.Http
 			if (_operation == null)
 			{
 				var handler = StateChanged;
-				if (handler != null)
-					handler(this, EventArgs.Empty);
+				handler?.Invoke(this, EventArgs.Empty);
+				Client.HttpHandler.OnStateChanged(_ctxEventArgs);
 			}
 			else
 			{
 				_operation.Post(_ =>
-				{
-					var handler = StateChanged;
-					if (handler != null)
-						handler(this, EventArgs.Empty);
-				}, null);
+					{
+						var handler = StateChanged;
+						handler?.Invoke(this, EventArgs.Empty);
+						Client.HttpHandler.OnStateChanged(_ctxEventArgs);
+					},
+					null);
 			}
 		}
 
@@ -1475,7 +1508,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求已经发送，正在等待写入请求数据或等待响应流
 		/// </summary>
-		public event EventHandler RequestSended;
+		public event EventHandler RequestSent;
 
 		/// <summary>
 		/// 已经获得请求流
@@ -1495,8 +1528,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求数据已经发送
 		/// </summary>
-
-		public event EventHandler RequestDataSended;
+		public event EventHandler RequestDataSent;
 
 		/// <summary>
 		/// 已经收到响应
@@ -1521,7 +1553,6 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求已经完成
 		/// </summary>
-
 		public event EventHandler RequestFinished;
 
 		/// <summary>
@@ -1547,10 +1578,10 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 引发 <see cref="PreviewResponseHeader"/> 事件
 		/// </summary>
-
 		protected virtual void OnPreviewResponseHeader()
 		{
 			PreviewResponseHeader?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnPreviewResponseHeader(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -1561,10 +1592,10 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 引发 <see cref="ValidateResponseHeader"/> 事件
 		/// </summary>
-
 		protected virtual void OnValidateResponseHeader()
 		{
 			ValidateResponseHeader?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnValidateResponseHeader(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -1575,10 +1606,10 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 引发 <see cref="ResponseContentObjectIntialized"/> 事件
 		/// </summary>
-
 		protected virtual void OnResponseContentObjectIntialized()
 		{
 			ResponseContentObjectIntialized?.Invoke(this, EventArgs.Empty);
+			Client.HttpHandler.OnResponseContentObjectInitialized(_ctxEventArgs);
 		}
 
 		#endregion
@@ -1599,10 +1630,12 @@ namespace FSLib.Network.Http
 			{
 				return JsonConvert.SerializeObject(obj);
 			}
+
 			if (JsonSerializationSetting.JsonConverts == null)
 			{
 				return JsonConvert.SerializeObject(obj, JsonSerializationSetting.Formatting, JsonSerializationSetting.Setting);
 			}
+
 			return JsonConvert.SerializeObject(obj, JsonSerializationSetting.Formatting, JsonSerializationSetting.JsonConverts);
 		}
 
@@ -1679,6 +1712,7 @@ namespace FSLib.Network.Http
 				Request?.Dispose();
 				Response?.Dispose();
 			}
+
 			//释放非托管资源
 			OnDisposed();
 
@@ -1710,6 +1744,13 @@ namespace FSLib.Network.Http
 		protected virtual void OnRequestEnd()
 		{
 			RequestEnd?.Invoke(this, new WebEventArgs(this));
+			Client.HttpHandler.OnValidateResponseHeader(_ctxEventArgs);
+		}
+
+		protected virtual void OnBeforeRequest()
+		{
+			BeforeRequest?.Invoke(this, EventArgs.Empty); 
+			Client.HttpHandler.OnBeforeRequest(_ctxEventArgs);
 		}
 	}
 
@@ -1815,11 +1856,10 @@ namespace FSLib.Network.Http
 		}
 
 #if NET_GT_4
-
-		/// <summary>
-		/// 以任务模式发送请求
-		/// </summary>
-		/// <returns></returns>
+/// <summary>
+/// 以任务模式发送请求
+/// </summary>
+/// <returns></returns>
 		public new Task<T> SendAsync()
 		{
 			return SendAsync(new CancellationToken());
@@ -1864,6 +1904,5 @@ namespace FSLib.Network.Http
 		}
 
 #endif
-
 	}
 }
