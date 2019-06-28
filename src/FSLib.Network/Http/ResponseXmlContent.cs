@@ -41,16 +41,6 @@ namespace FSLib.Network.Http
 
 		#region Overrides of HttpResponseContent
 
-		string NormalizeString(string str)
-		{
-			return Regex.Replace(str, "[\u0000-\u0020]", _ =>
-			{
-				var c = (int)_.Value[0];
-				return ((c >= 0 && c <= 8) || c == 11 || c == 12 || c >= 14 && c < 32) ? "&#x" + c.ToString("x") + ";" : _.Value;
-			});
-		}
-
-
 		/// <summary>
 		/// 请求处理最后的内容
 		/// </summary>
@@ -65,7 +55,7 @@ namespace FSLib.Network.Http
 			}
 			try
 			{
-				XmlDocument.LoadXml(NormalizeString(StringResult));
+				XmlDocument.LoadXml(Utils.NormalizeString(StringResult));
 			}
 			catch (Exception ex)
 			{

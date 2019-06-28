@@ -8,9 +8,7 @@ namespace FSLib.Network.Http
 {
 	using System.Text.RegularExpressions;
 
-	using Extension.FishLib;
-
-	using Newtonsoft.Json;
+	using Extension;
 	using Newtonsoft.Json.Linq;
 
 	public abstract class ResponseObjectContentBase<T> : ResponseBinaryContent
@@ -117,7 +115,7 @@ namespace FSLib.Network.Http
 				if (Result[index] == '<')
 				{
 					//XML反序列化
-					Object = (T)typeof(T).XmlDeserialize(StringResult);
+					Object = (T)typeof(T).XmlDeserialize(Utils.RemoveXmlDeclaration(Utils.NormalizeString(StringResult)));
 					ContentType = ResponseContentType.Xml;
 				}
 				else if (Result[index] == '{' || Result[index] == '[')

@@ -8,12 +8,9 @@ using System.Windows.Forms;
 
 namespace FSLib.Network.Http
 {
-	using System.FishExtension;
+using FSLib.Extension;
 	using System.Net;
 	using System.Security.Cryptography.X509Certificates;
-#if !NET45
-	using System.RunTime.CompilerServices;
-#endif
 	using System.Text.RegularExpressions;
 
 	/// <summary>
@@ -40,7 +37,7 @@ namespace FSLib.Network.Http
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		[NotifyPropertyChangedInvocator]
-		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		protected virtual void OnPropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}

@@ -10,6 +10,7 @@ namespace FSLib.Network.Http
 	using System.Diagnostics;
 	using System.Net;
 
+	using Extension;
 	using Extension.FishLib;
 
 	/// <summary>

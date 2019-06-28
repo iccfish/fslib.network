@@ -149,7 +149,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 创建 <see cref="HttpClient" />  的新实例(HttpClient)
 		/// </summary>
-		public HttpClient(HttpSetting setting = null, HttpHandler handler = null, CookieContainer cookieContainer = null)
+		public HttpClient(HttpSetting setting = null, IHttpHandler handler = null, CookieContainer cookieContainer = null)
 		{
 			Setting = setting ?? new HttpSetting();
 			CookieContainer = cookieContainer ?? new CookieContainer(4096, 100, 4096);

@@ -112,7 +112,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 初始化请求
 		/// </summary>
-		internal void OnRequestInit() => OnRequestInitInternal();
+		public void OnRequestInit() => OnRequestInitInternal();
 
 		/// <summary>
 		/// 重置状态

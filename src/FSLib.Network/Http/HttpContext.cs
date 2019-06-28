@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.FishExtension;
+using FSLib.Extension;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -49,13 +49,8 @@ namespace FSLib.Network.Http
 		/// </summary>
 		internal HttpContext(HttpClient client, HttpRequestMessage request)
 		{
-			if (client == null)
-				throw new ArgumentNullException(nameof(client), "client is null.");
-			if (request == null)
-				throw new ArgumentNullException(nameof(request), "request is null.");
-
-			Client = client;
-			Request = request;
+			Client = client ?? throw new ArgumentNullException(nameof(client), "client is null.");
+			Request = request ?? throw new ArgumentNullException(nameof(request), "request is null.");
 
 			_ctxEventArgs = new WebEventArgs(this);
 

@@ -6,9 +6,12 @@ using System.Text;
 namespace FSLib.Network.Http
 {
 	using System.Drawing;
-	using System.FishExtension;
+using FSLib.Extension;
 	using System.Security.Policy;
 	using System.Threading;
+
+	using Extension;
+
 #if NET_GT_4
 	using System.Threading.Tasks;
 

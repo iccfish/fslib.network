@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FSLib.Network.Http
 {
-	using System.FishExtension;
+using FSLib.Extension;
 
 	/// <summary>
 	/// HttpClient中出现的异常类
