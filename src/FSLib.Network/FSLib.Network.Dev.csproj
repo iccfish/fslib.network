@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>A strong http client for .NET with high usability</Description>
+    <Copyright>Copyright © 木鱼  2013-2016</Copyright>
+    <AssemblyTitle>FSLib.Network.Http (iFish's Network Library)</AssemblyTitle>
+    <VersionPrefix>2.2.2.0</VersionPrefix>
+    <Authors>iFish</Authors>
+    <TargetFrameworks>net35;net40;net45</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>FSLib.Network</AssemblyName>
+    <AssemblyOriginatorKeyFile>../snk/fslib.network.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PackageId>network.fishlee.net</PackageId>
+    <PackageTags>http;web;network;httpclient</PackageTags>
+    <PackageReleaseNotes>修正版本号</PackageReleaseNotes>
+    <PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <DelaySign>False</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="content\**\*" PackagePath="%(Identity)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <ProjectReference Include="..\..\..\FSLib.Extension\src\FSLib.Extension.csproj" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
+    <DefineConstants>$(DefineConstants);NET35</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <DefineConstants>$(DefineConstants);NET40;NET_GT_4</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <DefineConstants>$(DefineConstants);NET45;NET_GT_4;NET_GT_45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Version>2.3.1.0</Version>
+  </PropertyGroup>
+</Project>

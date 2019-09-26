@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +8,9 @@ using System.Windows.Forms;
 
 namespace FSLib.Network.Http
 {
-using FSLib.Extension;
+	using FSLib.Extension;
 	using System.Net;
+	using System.Reflection;
 	using System.Security.Cryptography.X509Certificates;
 	using System.Text.RegularExpressions;
 
@@ -98,7 +99,8 @@ using FSLib.Extension;
 					request.Headers[item] = Headers[item];
 				}
 			}
-			request.KeepAlive = KeepAlive;
+			if (KeepAlive.HasValue)
+				request.KeepAlive = KeepAlive.Value;
 			request.TransferEncoding = TransferEncoding;
 			request.UseNagleAlgorithm = UseNagleAlgorithm;
 			request.AllowWriteStreamBuffering = AllowWriteStreamBuffering;
@@ -150,7 +152,6 @@ using FSLib.Extension;
 		/// </summary>
 		public void SetCloseConnection()
 		{
-			Connection = "Close";
 		}
 
 		/// <summary>
@@ -164,8 +165,8 @@ using FSLib.Extension;
 		/// </summary>
 		public IContentPayloadBuilder ContentPayloadBuilder
 		{
-			get { return _contentPalPayloadBuilder ?? (_contentPalPayloadBuilder = new ContentPayloadBuilder()); }
-			set { _contentPalPayloadBuilder = value; }
+			get => _contentPalPayloadBuilder ?? (_contentPalPayloadBuilder = new ContentPayloadBuilder());
+			set => _contentPalPayloadBuilder = value;
 		}
 
 		/// <summary>
@@ -186,7 +187,7 @@ using FSLib.Extension;
 		/// <summary>
 		/// 获得或设置是否启用URL字段替换
 		/// </summary>
-		public bool EnableUrlTokenIdentitier { get; set; } = true;
+		public bool EnableUrlTokenIdentifier { get; set; } = true;
 
 
 		/// <summary>
@@ -303,7 +304,7 @@ using FSLib.Extension;
 		/// <summary>
 		/// 默认的UserAgent
 		/// </summary>
-		public static string DefaultUserAgent = string.Format("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.39 Safari/537.36 iFish_Network_Client/{0};", System.Reflection.Assembly.GetExecutingAssembly().GetFileVersionInfo().FileVersion);
+		public static string DefaultUserAgent = string.Format("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.39 Safari/537.36 iFish_Network_Client/{0};", System.Reflection.Assembly.GetExecutingAssembly().GetCustomerAttributes<AssemblyFileVersionAttribute>()[0].Version);
 
 #if NET_GT_4
 		/// <summary>
@@ -418,11 +419,6 @@ using FSLib.Extension;
 		public WebHeaderCollection Headers { get; set; } = new WebHeaderCollection();
 
 		/// <summary>
-		/// 获得或设置当前HTTP协议的保持连接设置
-		/// </summary>
-		public string Connection { get; set; } = "Close";
-
-		/// <summary>
 		/// 获得或设置当前HTTP协议的接受内容类型
 		/// </summary>
 		public string Accept { get; set; } = "*/*";
@@ -437,8 +433,8 @@ using FSLib.Extension;
 		/// </summary>
 		public string UserAgent
 		{
-			get { return _userAgent; }
-			set { _userAgent = CheckAuthorVendor(value); }
+			get => _userAgent;
+			set => _userAgent = CheckAuthorVendor(value);
 		}
 
 		/// <summary>
@@ -454,7 +450,7 @@ using FSLib.Extension;
 		/// <summary>
 		/// 获得或设置是否保持活动
 		/// </summary>
-		public bool KeepAlive { get; set; } = false;
+		public bool? KeepAlive { get; set; } = null;
 
 		/// <summary>
 		/// 是否使用NagleAlgorithm

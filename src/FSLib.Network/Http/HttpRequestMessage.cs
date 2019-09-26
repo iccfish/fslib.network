@@ -195,7 +195,7 @@ namespace FSLib.Network.Http
                 RequestData.PrepareData();
 
                 //构建URL
-                if (client.Setting.EnableUrlTokenIdentitier && RequestData is RequestFormDataContent)
+                if (client.Setting.EnableUrlTokenIdentifier && RequestData is RequestFormDataContent)
                 {
                     var formData = (RequestFormDataContent)RequestData;
                     var uri = Uri.OriginalString;
