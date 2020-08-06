@@ -95,7 +95,7 @@ namespace FSLib.Network.Http
 			if (AutoStartSpeedMonitor)
 				Performance.EnableSpeedMonitor();
 
-			Client.OnBeforeRequest(_ctxEventArgs);
+			OnBeforeRequest();
 			if (_ctxEventArgs.Cancelled)
 			{
 				Cancelled = true;
@@ -161,10 +161,7 @@ namespace FSLib.Network.Http
 		}
 
 
-		string DebuggerDisplay
-		{
-			get { return $"{Request.Method} \"{Request.Uri}\" Code={Status} Success:{IsSuccess} Elapsed:{Performance?.ElapsedTime}"; }
-		}
+		string DebuggerDisplay => $"{Request.Method} \"{Request.Uri}\" Code={Status} Success:{IsSuccess} Elapsed:{Performance?.ElapsedTime}";
 
 		/// <summary>
 		/// 以原子操作变更当前的状态。如果当前状态不符，则返回false
@@ -277,13 +274,6 @@ namespace FSLib.Network.Http
 					null);
 				_operation = null;
 			}
-
-			if (Cancelled)
-			{
-				Client.OnRequestCancelled(new WebEventArgs(this));
-			}
-
-			Client.OnRequestFailed(new WebEventArgs(this));
 		}
 
 		/// <summary>
@@ -307,8 +297,6 @@ namespace FSLib.Network.Http
 				OnRequestFinished();
 				OnRequestEnd();
 			}
-
-			Client.OnRequestSuccess(new WebEventArgs(this));
 		}
 
 		/// <summary>
@@ -343,6 +331,7 @@ namespace FSLib.Network.Http
 			if (handler != null)
 				handler(this, EventArgs.Empty);
 			Client.HttpHandler.OnRequestCancelled(_ctxEventArgs);
+			Client.OnRequestCancelled(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -353,7 +342,6 @@ namespace FSLib.Network.Http
 			var handler = RequestCreated;
 			if (handler != null)
 				handler(this, EventArgs.Empty);
-			Client.HttpHandler.OnRequestCreated(_ctxEventArgs);
 			Client.HttpHandler.OnRequestCreated(_ctxEventArgs);
 		}
 
@@ -400,6 +388,7 @@ namespace FSLib.Network.Http
 			if (handler != null)
 				handler(this, EventArgs.Empty);
 			Client.HttpHandler.OnRequestFailed(_ctxEventArgs);
+			Client.OnRequestFailed(_ctxEventArgs);
 		}
 
 		/// <summary>
@@ -411,6 +400,8 @@ namespace FSLib.Network.Http
 			if (handler != null)
 				handler(this, EventArgs.Empty);
 			Client.HttpHandler.OnRequestFinished(_ctxEventArgs);
+			Client.OnRequestSuccess(_ctxEventArgs);
+			
 		}
 
 		/// <summary>
@@ -1451,9 +1442,6 @@ namespace FSLib.Network.Http
 			{
 				InternalOnRequestFinished();
 			}
-
-			var we = new WebEventArgs(this);
-			Client.OnAfterRequest(we);
 		}
 
 		#endregion
@@ -1739,13 +1727,15 @@ namespace FSLib.Network.Http
 		protected virtual void OnRequestEnd()
 		{
 			RequestEnd?.Invoke(this, new WebEventArgs(this));
-			Client.HttpHandler.OnValidateResponseHeader(_ctxEventArgs);
+			Client.HttpHandler.OnRequestEnd(_ctxEventArgs);
+			Client.OnRequestEnd(_ctxEventArgs);
 		}
 
 		protected virtual void OnBeforeRequest()
 		{
 			BeforeRequest?.Invoke(this, EventArgs.Empty); 
 			Client.HttpHandler.OnBeforeRequest(_ctxEventArgs);
+			Client.OnBeforeRequest(_ctxEventArgs);
 		}
 	}
 

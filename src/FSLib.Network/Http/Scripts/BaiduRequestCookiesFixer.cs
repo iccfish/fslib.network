@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,8 +17,8 @@ namespace FSLib.Network.Http.Scripts
 		/// </summary>
 		public static void Enable()
 		{
-			GlobalEvents.AfterRequest -= GlobalEvents_AfterRequest;
-			GlobalEvents.AfterRequest += GlobalEvents_AfterRequest;
+			GlobalEvents.RequestEnd -= GlobalEvents_AfterRequest;
+			GlobalEvents.RequestEnd += GlobalEvents_AfterRequest;
 		}
 
 		/// <summary>
@@ -26,7 +26,7 @@ namespace FSLib.Network.Http.Scripts
 		/// </summary>
 		public static void Disable()
 		{
-			GlobalEvents.AfterRequest -= GlobalEvents_AfterRequest;
+			GlobalEvents.RequestEnd -= GlobalEvents_AfterRequest;
 		}
 
 		private static void GlobalEvents_AfterRequest(object sender, WebEventArgs e)

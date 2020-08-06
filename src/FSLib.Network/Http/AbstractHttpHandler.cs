@@ -1,4 +1,4 @@
-﻿namespace FSLib.Network.Http
+namespace FSLib.Network.Http
 {
 	using System;
 	using System.Collections.Generic;
@@ -340,18 +340,15 @@
 		/// </summary>
 		public virtual event EventHandler<WebEventArgs> BeforeRequest;
 
-		public virtual void OnDetectResponseContentType(WebEventArgs e) { DetectResponseContentType?.Invoke(this, e); }
+		public virtual void OnDetectResponseContentType(WebEventArgs e) => DetectResponseContentType?.Invoke(this, e);
 
-		public virtual void OnPerformanceObjectCreated(WebEventArgs e) { PerformanceObjectCreated?.Invoke(this, e); }
+		public virtual void OnPerformanceObjectCreated(WebEventArgs e) => PerformanceObjectCreated?.Invoke(this, e);
 
-		public virtual void OnRequestCancelled(WebEventArgs e) { RequestCancelled?.Invoke(this, e); }
+		public virtual void OnRequestCancelled(WebEventArgs e) => RequestCancelled?.Invoke(this, e);
 
-		public virtual void OnRequestCreated(WebEventArgs e) { RequestCreated?.Invoke(this, e); }
+		public virtual void OnRequestCreated(WebEventArgs e) => RequestCreated?.Invoke(this, e);
 
-		public virtual void OnBeforeRequest(WebEventArgs e)
-		{
-			BeforeRequest?.Invoke(e.Context, e);
-		}
+		public virtual void OnBeforeRequest(WebEventArgs e) => BeforeRequest?.Invoke(e.Context, e);
 
 		public virtual void OnRequestDataPrepared(WebEventArgs e) => RequestDataPrepared?.Invoke(this, e);
 	}

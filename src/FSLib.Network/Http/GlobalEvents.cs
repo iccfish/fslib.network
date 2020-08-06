@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +8,6 @@ namespace FSLib.Network.Http
 	public class GlobalEvents
 	{
 
-
-		/// <summary>
-		/// 完成发送请求
-		/// </summary>
-		public static event EventHandler<WebEventArgs> AfterRequest;
 		/// <summary>
 		/// 准备发送请求
 		/// </summary>
@@ -54,11 +49,6 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public static event EventHandler<GetPreferedResponseTypeEventArgs> RequestGetPreferedResponseType;
 
-		/// <summary>
-		/// 当前请求被重新发送
-		/// </summary>
-		public event EventHandler RequestResubmit;
-
 
 		/// <summary>
 		/// WEB请求成功
@@ -76,26 +66,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public static event EventHandler<RequestWrapRequestContentEventArgs> RequestWrapRequestContent;
 
-		/// <summary>
-		/// 引发 <see cref="RequestResubmit"/> 事件
-		/// </summary>
-		protected virtual void OnRequestResubmit()
-		{
-			RequestResubmit?.Invoke(this, EventArgs.Empty);
-		}
 
-		/// <summary>
-		/// 引发 <see cref="AfterRequest" /> 事件
-		/// </summary>
-		/// <param name="sender">引发此事件的源对象</param>
-		/// <param name="ea">包含此事件的参数</param>
-		internal static void OnAfterRequest(object sender, WebEventArgs ea)
-		{
-			var handler = AfterRequest;
-
-			if (handler != null)
-				handler(sender, ea);
-		}
 
 		/// <summary>
 		/// 引发 <see cref="BeforeRequest" /> 事件

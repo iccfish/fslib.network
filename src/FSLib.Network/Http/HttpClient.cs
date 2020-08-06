@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -791,23 +791,6 @@ namespace FSLib.Network.Http
 			GlobalEvents.OnBeforeRequest(this, ea);
 		}
 
-
-		/// <summary>
-		/// 完成发送请求
-		/// </summary>
-		public event EventHandler<WebEventArgs> AfterRequest;
-
-		/// <summary>
-		/// 引发 <see cref="AfterRequest" /> 事件
-		/// </summary>
-		/// <param name="ea">包含此事件的参数</param>
-		public virtual void OnAfterRequest(WebEventArgs ea)
-		{
-			var handler = AfterRequest;
-
-			handler?.Invoke(this, ea);
-			GlobalEvents.OnAfterRequest(this, ea);
-		}
 
 
 		/// <summary>
