@@ -1816,7 +1816,7 @@ namespace FSLib.Network.Http
 					CheckResponseType<ResponseXmlContent>();
 					ret = ((ResponseXmlContent)ResponseContent).XmlDocument;
 				}
-				else if (t == typeof(Stream))
+				else if (typeof(Stream).IsAssignableFrom(t))
 				{
 					throw new InvalidOperationException("不可通过此方式操作流结果");
 				}

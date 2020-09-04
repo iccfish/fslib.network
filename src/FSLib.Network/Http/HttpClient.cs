@@ -337,7 +337,7 @@ namespace FSLib.Network.Http
 						}
 						content = r;
 					}
-					else if (resultType == typeof(Stream))
+					else if (typeof(Stream).IsAssignableFrom(resultType))
 					{
 						content = new ResponseCopyStreamContent(ctx, this, targetStream ?? new MemoryStream());
 					}
