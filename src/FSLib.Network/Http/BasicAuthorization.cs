@@ -7,30 +7,30 @@ using System.Net;
 namespace FSLib.Network.Http
 {
 	/// <summary>
-	/// ÊÊÓÃÓÚÆÕÍ¨ÈÏÖ¤µÄÈÏÖ¤½á¹û
+	/// é€‚ç”¨äºæ™®é€šè®¤è¯çš„è®¤è¯ç»“æœ
 	/// </summary>
 	public class BasicAuthorization : Authorization
 	{
 		/// <summary>
-		/// »ñµÃ»òÉèÖÃÓÃ»§Ãû
+		/// è·å¾—æˆ–è®¾ç½®ç”¨æˆ·å
 		/// </summary>
 		public string UserName { get; set; }
 
 		/// <summary>
-		/// »ñµÃ»òÉèÖÃÃÜÂë
+		/// è·å¾—æˆ–è®¾ç½®å¯†ç 
 		/// </summary>
 		public string Password { get; set; }
 
 		/// <summary>
-		/// »ñµÃ»òÉèÖÃ±àÂë¸ñÊ½
+		/// è·å¾—æˆ–è®¾ç½®ç¼–ç æ ¼å¼
 		/// </summary>
 		public Encoding TextEncoding { get; set; }
 
 		/// <summary>
-		/// ´´½¨Ò»¸öĞÂµÄ¶ÔÏó
+		/// åˆ›å»ºä¸€ä¸ªæ–°çš„å¯¹è±¡
 		/// </summary>
-		/// <param name="userName">ÓÃ»§Ãû</param>
-		/// <param name="password">ÃÜÂë</param>
+		/// <param name="userName">ç”¨æˆ·å</param>
+		/// <param name="password">å¯†ç </param>
 		public BasicAuthorization(string userName, string password)
 		{
 			Password = password;
@@ -38,14 +38,14 @@ namespace FSLib.Network.Http
 			TextEncoding = System.Text.Encoding.Default;
 		}
 		/// <summary>
-		/// ½«ĞÅÏ¢Ğ´ÈëHttpWebRequestÖĞ
+		/// å°†ä¿¡æ¯å†™å…¥HttpWebRequestä¸­
 		/// </summary>
-		/// <param name="request">ÇëÇó</param>
-		/// <param name="httpContext">µ±Ç°µÄÉÏÏÂÎÄ</param>
+		/// <param name="request">è¯·æ±‚</param>
+		/// <param name="httpContext">å½“å‰çš„ä¸Šä¸‹æ–‡</param>
 		public override void SetRequest(HttpWebRequest request,
 			HttpContext httpContext)
 		{
-			if (UserName.IsNullOrEmpty() || Password.IsNullOrEmpty())
+			if (UserName.IsNullOrEmpty())
 				return;
 
 			request.Headers.Add(HttpRequestHeader.Authorization, "Basic " + Convert.ToBase64String(TextEncoding.GetBytes(UserName + ":" + Password)));
