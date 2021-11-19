@@ -4,8 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Security;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 #if NET4
 using System.Threading.Tasks;
 #endif
@@ -13,11 +11,8 @@ using System.Xml;
 
 namespace FSLib.Network.Http
 {
-	using System.Data.Odbc;
 	using System.Diagnostics;
 	using System.Net;
-	using System.Threading;
-	using System.Web;
 
 	/// <summary>
 	/// 类型 HttpClient
@@ -41,6 +36,15 @@ namespace FSLib.Network.Http
 			};
 			CheckCertificateRevocationList = false;
 			ServicePointManager.DefaultConnectionLimit = 1024;
+#if NET_GET_45
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12
+#else
+			ServicePointManager.SecurityProtocol =
+				SecurityProtocolType.Ssl3
+				| SecurityProtocolType.Tls
+				| (SecurityProtocolType)3072 //TLS 1.2
+				| (SecurityProtocolType)768; //TLS 1.1;
+#endif
 		}
 
 		#region 全局设置
@@ -88,15 +92,15 @@ namespace FSLib.Network.Http
 				}
 			}
 
-					context.Disposed += (s, e) =>
-					{
-						var ctx = s as HttpContext;
-						lock (_contextMap)
-						{
-							if (_contextMap.ContainsKey(ctx.WebRequest))
-								_contextMap.Remove(ctx.WebRequest);
-						}
-					};
+			context.Disposed += (s, e) =>
+			{
+				var ctx = s as HttpContext;
+				lock (_contextMap)
+				{
+					if (_contextMap.ContainsKey(ctx.WebRequest))
+						_contextMap.Remove(ctx.WebRequest);
+				}
+			};
 		}
 
 #endif
@@ -670,7 +674,7 @@ namespace FSLib.Network.Http
 			if (headers?.Count > 0)
 			{
 				if (request.Headers == null)
-			request.Headers = headers;
+					request.Headers = headers;
 				else
 					headers.CopyTo(request.Headers);
 			}
