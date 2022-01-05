@@ -3,7 +3,7 @@
     <Description>A strong http client for .NET with high usability</Description>
     <Copyright>Copyright © 木鱼  2013-2019</Copyright>
     <AssemblyTitle>FSLib.Network.Http (iFish's Network Library)</AssemblyTitle>
-    <VersionPrefix>2.2.2.0</VersionPrefix>
+    <VersionPrefix>2.3.2.0</VersionPrefix>
     <Authors>iFish</Authors>
     <TargetFrameworks>net35;net40;net45</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -13,7 +13,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>network.fishlee.net</PackageId>
     <PackageTags>http;web;network;httpclient</PackageTags>
-    <PackageReleaseNotes>修正版本号</PackageReleaseNotes>
+    <PackageReleaseNotes>修正AcceptEncoding未能正确写入的BUG</PackageReleaseNotes>
     <PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
@@ -44,6 +44,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <Version>2.3.1.0</Version>
+    <Version>2.3.2.0</Version>
   </PropertyGroup>
 </Project>

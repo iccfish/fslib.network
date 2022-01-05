@@ -89,6 +89,7 @@ namespace FSLib.Network.Http
 				request.ReadWriteTimeout = ReadWriteTimeout.Value;
 			request.UserAgent = UserAgent;
 			request.Headers = new WebHeaderCollection();
+			request.AcceptEncoding = AcceptEncoding;
 			if (Headers != null && Headers.Count > 0)
 			{
 				foreach (string item in Headers.AllKeys)
