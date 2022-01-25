@@ -73,6 +73,7 @@ namespace FSLib.Network.Http
 
 		#endregion
 
+		/// <inheritdoc />
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);

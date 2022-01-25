@@ -20,10 +20,6 @@
 		/// <summary>
 		/// XML格式
 		/// </summary>
-		Xml = 3,
-		/// <summary>
-		/// 二进制格式
-		/// </summary>
-		Binary = 4
+		Xml = 3
 	}
 }

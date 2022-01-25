@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace FSLib.Network.Http
 {
-	using System.Runtime.Remoting.Messaging;
-	using System.Text.RegularExpressions;
 
 	/// <summary>
 	/// HTTP响应信息

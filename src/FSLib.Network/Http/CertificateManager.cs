@@ -28,10 +28,10 @@ namespace FSLib.Network.Http
 			if (_certificates.Count == 0)
 				return;
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 			var host = message.Host.IsNullOrEmpty() ? message.Uri.Host : message.Host;
 #else
-            var host = message.Uri.Host;
+			var host = message.Uri.Host;
 #endif
 			string result;
 			lock (_mappedCache)

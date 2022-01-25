@@ -2,6 +2,8 @@
 {
 	using System;
 
+	using ObjectWrapper;
+
 	/// <summary>
 	/// 标记当前类型使用的数据处理类
 	/// </summary>

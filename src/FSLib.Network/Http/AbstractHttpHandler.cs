@@ -67,18 +67,9 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得比较最适合的用于处理响应的类型
 		/// </summary>
-		/// <typeparam name="T">当前希望获得的结果</typeparam>
-		/// <param name="client">当前的HTTP客户端</param>
-		/// <param name="ctx">当前的上下文环境</param>
-		/// <param name="responseContent">当前用来处理结果的对象</param>
-		/// <param name="streamInvoker">如果希望能按流处理，那么用来处理响应的事件委托</param>
-		/// <param name="result">当前希望获得的结果实例</param>
-		/// <param name="targetStream">要将相应内容写入的流</param>
-		/// <param name="saveToFilePath">要将当前请求写入的文件路径</param>
 		/// <returns></returns>
-		public HttpResponseContent GetPreferedResponseType<T>(HttpClient client, HttpContext ctx, HttpResponseContent responseContent, EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null, T result = default(T), Stream targetStream = null, string saveToFilePath = null)
+		public void GetPreferredResponseType(GetPreferredResponseTypeEventArgs ea)
 		{
-			return responseContent;
 		}
 
 

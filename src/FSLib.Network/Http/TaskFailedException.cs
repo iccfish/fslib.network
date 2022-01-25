@@ -7,7 +7,7 @@ namespace FSLib.Network.Http
 {
 	using System.Net;
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 	/// <summary>
 	/// 请求操作完成，但是没有能成功的异常

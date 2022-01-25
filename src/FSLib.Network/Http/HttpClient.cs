@@ -36,9 +36,9 @@ namespace FSLib.Network.Http
 			};
 			CheckCertificateRevocationList = false;
 			ServicePointManager.DefaultConnectionLimit = 1024;
-#if NET_GET_45
-			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12
-#else
+
+#if NET35 || NET40
+			// see also: https://stackoverflow.com/questions/33761919/tls-1-2-in-net-framework-4-0
 			ServicePointManager.SecurityProtocol =
 				SecurityProtocolType.Ssl3
 				| SecurityProtocolType.Tls
@@ -63,8 +63,8 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public static int DefaultConnectionLimit
 		{
-			get { return ServicePointManager.DefaultConnectionLimit; }
-			set { ServicePointManager.DefaultConnectionLimit = value; }
+			get => ServicePointManager.DefaultConnectionLimit;
+			set => ServicePointManager.DefaultConnectionLimit = value;
 		}
 
 		#endregion
@@ -220,150 +220,7 @@ namespace FSLib.Network.Http
 			return uri;
 		}
 
-		#region 事件参数
-
-		/// <summary>
-		/// 获得对应的数据处理类
-		/// </summary>
-		public event EventHandler<GetPreferedResponseTypeEventArgs> RequestGetPreferedResponseType;
-
-
-		/// <summary>
-		/// 引发 <see cref="RequestGetPreferedResponseType" /> 事件
-		/// </summary>
-		/// <param name="sender">引发此事件的源对象</param>
-		/// <param name="ea">包含此事件的参数</param>
-		public void OnRequestGetPreferedResponseType(object sender, GetPreferedResponseTypeEventArgs ea)
-		{
-			var handler = RequestGetPreferedResponseType;
-			handler?.Invoke(sender, ea);
-		}
-		/// <summary>
-		/// 获得对应的数据处理类
-		/// </summary>
-		public static event EventHandler<GetPreferedResponseTypeEventArgs> BeforeRequestGetPreferedResponseType;
-
-		/// <summary>
-		/// 引发 <see cref="BeforeRequestGetPreferedResponseType" /> 事件
-		/// </summary>
-		/// <param name="sender">引发此事件的源对象</param>
-		/// <param name="ea">包含此事件的参数</param>
-		public static void OnBeforeRequestGetPreferedResponseType(object sender, GetPreferedResponseTypeEventArgs ea)
-		{
-			var handler = BeforeRequestGetPreferedResponseType;
-			handler?.Invoke(sender, ea);
-		}
-
-		/// <summary>
-		/// 请求将发送数据包装为请求承载数据
-		/// </summary>
-		public static event EventHandler<RequestWrapRequestContentEventArgs> BeforeWrapRequestContent;
-
-		/// <summary>
-		/// 引发 <see cref="BeforeWrapRequestContent" /> 事件
-		/// </summary>
-		/// <param name="sender">引发此事件的源对象</param>
-		/// <param name="ea">包含此事件的参数</param>
-		public static void OnBeforeWrapRequestContent(object sender, RequestWrapRequestContentEventArgs ea)
-		{
-			var handler = BeforeWrapRequestContent;
-			handler?.Invoke(sender, ea);
-		}
-
-
-		/// <summary>
-		/// 请求将发送数据包装为请求承载数据
-		/// </summary>
-		public event EventHandler<RequestWrapRequestContentEventArgs> RequestWrapRequestContent;
-
-		/// <summary>
-		/// 引发 <see cref="RequestWrapRequestContent" /> 事件
-		/// </summary>
-		/// <param name="sender">引发此事件的源对象</param>
-		/// <param name="ea">包含此事件的参数</param>
-		public void OnRequestWrapRequestContent(object sender, RequestWrapRequestContentEventArgs ea)
-		{
-			var handler = RequestWrapRequestContent;
-			handler?.Invoke(sender, ea);
-		}
-
-
-		#endregion
-
 		#region 核心逻辑
-
-
-
-		/// <summary>
-		/// 获得对应的数据处理类
-		/// </summary>
-		/// <param name="ctx"></param>
-		/// <param name="streamInvoker"></param>
-		/// <param name="result"></param>
-		/// <param name="targetStream">目标流</param>
-		/// <param name="saveToFilePath">希望保存到的目标文件路径</param>
-		/// <param name="extraRequestInfo">额外的请求数据信息</param>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		public virtual HttpResponseContent GetPreferedResponseType<T>(HttpContext ctx, EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null, T result = default(T), Stream targetStream = null, string saveToFilePath = null, ExtraRequestInfo extraRequestInfo = null)
-		{
-			var resultType = typeof(T);
-			var ea = new GetPreferedResponseTypeEventArgs<T>(this, ctx, result, saveToFilePath, streamInvoker, targetStream, extraRequestInfo);
-			ea.ResponseContent = Setting.ContentPayloadBuilder.GetResponseContent(result, ea);
-
-			GlobalEvents.OnBeforeRequestGetPreferedResponseType(this, ea);
-			OnBeforeRequestGetPreferedResponseType(this, ea);
-			var content = ea.ResponseContent;
-
-			if (content == null)
-			{
-
-				if (!saveToFilePath.IsNullOrEmpty())
-				{
-					content = new ResponseFileContent(ctx, this, saveToFilePath);
-				}
-				else if (resultType != typeof(object))
-				{
-					if (resultType == typeof(string))
-						content = new ResponseStringContent(ctx, this);
-					else if (resultType == typeof(byte[]))
-						content = new ResponseBinaryContent(ctx, this);
-					else if (resultType == typeof(Image))
-						content = new ResponseImageContent(ctx, this);
-					else if (resultType == typeof(XmlDocument))
-						content = new ResponseXmlContent(ctx, this, (XmlDocument)(object)result);
-					else if (resultType == typeof(EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs>))
-					{
-						var r = new ResponseStreamContent(ctx, this);
-						if (streamInvoker != null)
-						{
-							r.RequireProcessStream += streamInvoker;
-						}
-						content = r;
-					}
-					else if (typeof(Stream).IsAssignableFrom(resultType))
-					{
-						content = new ResponseCopyStreamContent(ctx, this, targetStream ?? new MemoryStream());
-					}
-					else
-						content = new ResponseObjectContent<T>(ctx, this) { ObjectInternal = result };
-				}
-				else content = null;    //为null，等待请求自动判断
-
-				ea.ResponseContent = content;
-			}
-
-			//Global events
-			GlobalEvents.OnRequestGetPreferedResponseType(this, ea);
-
-			//instance events
-			OnRequestGetPreferedResponseType(this, ea);
-
-			//http handler
-			HttpHandler.GetPreferedResponseType<T>(this, ctx, content, streamInvoker, result, targetStream);
-
-			return content;
-		}
 
 		/// <summary>
 		/// 创建请求
@@ -378,138 +235,7 @@ namespace FSLib.Network.Http
 
 			return context;
 		}
-
-		/// <summary>
-		/// 对请求数据进行包装，转换为合适的请求类型，并返回对应的负载类型
-		/// </summary>
-		/// <param name="data">要发送的数据</param>
-		/// <param name="contentType">对应的负载类型</param>
-		/// <param name="extraRequestInfo">额外的请求数据</param>
-		/// <returns>经过包装的 <see cref="HttpRequestContent"/> 对象</returns>
-		public virtual HttpRequestContent WrapRequestContent(object data, ContentType? contentType, ExtraRequestInfo extraRequestInfo)
-		{
-			if (data == null)
-				return null;
-
-			var type = contentType ?? GetPreferContentType(data.GetType()) ?? Setting.DefaultRequestContentType;
-			var ea = new RequestWrapRequestContentEventArgs(this, data, extraRequestInfo) { ContentType = type };
-			ea.RequestContent = Setting.ContentPayloadBuilder.WrapRequestContent(data, ea);
-
-			GlobalEvents.OnBeforeRequestWrapRequestContent(this, ea);
-			OnBeforeWrapRequestContent(this, ea);
-			var content = ea.RequestContent;
-			contentType = ea.ContentType;
-
-			if (content == null)
-			{
-				if (data is HttpRequestContent)
-				{
-					content = data as HttpRequestContent;
-				}
-				else if (data is string)
-				{
-					content = WrapRequestDataToStringContent(data as string, type);
-				}
-				else if (data is Stream)
-				{
-					content = WrapRequestDataToStreamContent(data as Stream, type);
-				}
-				else if (data is byte[])
-				{
-					content = WrapRequestDataToByteBufferContent(data as byte[], type);
-				}
-				else if (data is IDictionary<string, string> && type != ContentType.Json)
-				{
-					content = WrapRequestDataToFormDataContent(data as IDictionary<string, string>, type);
-				}
-				else if (data is XmlDocument || data is XmlNode || data is System.Xml.Linq.XDocument)
-				{
-					content = WrapRequestDataToXmlContent(data, contentType ?? ContentType.Xml);
-				}
-				//object
-
-				else if (contentType == ContentType.Json)
-				{
-					content = WrapRequestDataToJsonContent(data);
-				}
-				else if (contentType == ContentType.Xml)
-				{
-					content = WrapRequestDataToXmlContent(data, type);
-				}
-				else
-					content = WrapRequestDataToObjectContent(data, type);
-			}
-
-			//全局事件
-			GlobalEvents.OnRequestWrapRequestContent(this, ea);
-
-			//实例事件
-			OnRequestWrapRequestContent(this, ea);
-
-			content = HttpHandler.WrapRequestContent(this, content, data, contentType);
-
-			return content;
-		}
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="data"></param>
-		/// <param name="contentType"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToObjectContent<T>(T data, ContentType contentType) where T : class => new RequestObjectContent<T>(data, contentType);
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="contentType"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToFormDataContent(IDictionary<string, string> data, ContentType contentType) => new RequestFormDataContent(data, contentType);
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="contentType"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToStringContent(string data, ContentType contentType) => new RequestStringContent(data, contentType);
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="contentType"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToStreamContent(Stream data, ContentType contentType) => new RequestCopyStreamContent(data, contentType);
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="contentType"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToByteBufferContent(byte[] data, ContentType contentType) => new RequestByteBufferContent(data, contentType: contentType);
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="data"></param>
-		/// <param name="contentType"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToXmlContent<T>(T data, ContentType contentType) where T : class => new RequestXmlContent(data, contentType);
-
-
-		/// <summary>
-		/// 将数据包装为指定的请求对象
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public virtual HttpRequestContent WrapRequestDataToJsonContent<T>(T data) where T : class => new RequestJsonContent(data);
-
+		
 
 		/// <summary>
 		/// 创建网络请求
@@ -546,9 +272,8 @@ namespace FSLib.Network.Http
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
 			bool? allowAutoRedirect = null,
-			Stream targetStream = null,
-			ExtraRequestInfo extra = null
-			) where TResult : class => Create<TResult>(method, uri, refer?.OriginalString, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream, extra);
+			Stream targetStream = null
+			) where TResult : class => Create<TResult>(method, uri, refer?.OriginalString, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
 
 		/// <summary>
 		/// 创建网络请求
@@ -567,7 +292,6 @@ namespace FSLib.Network.Http
 		/// <param name="contentType">设置当发送对象类型时，设置发送类型</param>
 		/// <param name="allowAutoRedirect">设置当服务器发送3xx代码时是否自动跟踪跳转</param>
 		/// <param name="targetStream">要写入的目标流</param>
-		/// <param name="extra">额外的请求数据</param>
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		public HttpContext<TResult> Create<TResult>(
@@ -584,10 +308,9 @@ namespace FSLib.Network.Http
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
 			bool? allowAutoRedirect = null,
-			Stream targetStream = null,
-			ExtraRequestInfo extra = null
+			Stream targetStream = null
 			) where TResult : class
-			=> Create<TResult>(method.ToString().ToUpper(), uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream, extra);
+			=> Create<TResult>(method.ToString().ToUpper(), uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
 
 		/// <summary>
 		/// 创建网络请求
@@ -606,7 +329,6 @@ namespace FSLib.Network.Http
 		/// <param name="contentType">设置当发送对象类型时，设置发送类型</param>
 		/// <param name="allowAutoRedirect">设置当服务器发送3xx代码时是否自动跟踪跳转</param>
 		/// <param name="targetStream">要写入的目标流</param>
-		/// <param name="extra">额外的请求数据</param>
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		public HttpContext<TResult> Create<TResult>(
@@ -623,8 +345,7 @@ namespace FSLib.Network.Http
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
 			bool? allowAutoRedirect = null,
-			Stream targetStream = null,
-			ExtraRequestInfo extra = null
+			Stream targetStream = null
 			) where TResult : class
 		{
 			if (string.IsNullOrEmpty(method))
@@ -637,7 +358,7 @@ namespace FSLib.Network.Http
 				throw new InvalidOperationException("context type cannot be object.");
 			}
 
-			contextData = contextData ?? new Dictionary<string, object>();
+			contextData ??= new Dictionary<string, object>();
 			method = method.ToUpper();
 
 			var resultType = typeof(TResult);
@@ -647,27 +368,24 @@ namespace FSLib.Network.Http
 			var referUri = Setting.ResolveReferUri ? ResolveUri(HttpRequestHeader.Referer, refer, contextData) : null;
 			var request = new HttpRequestMessage(uri, method)
 			{
-				Referer = referUri?.OriginalString ?? refer
+				Referer = referUri?.OriginalString ?? refer,
+				//自动设置格式
+				ExceptType = typeof(TResult),
+				ExceptObject = result,
 			};
 			if (data != null)
 			{
-				request.RequestData = WrapRequestContent(data, contentType, extra);
+				request.RequestPayload = data;
 			}
 			else if (request.AllowRequestBody)
 			{
-				request.RequestData = new RequestByteBufferContent(new byte[0]);
+				request.RequestData = new byte[0];
 			}
 			request.Async = async;
 
 			var ctx = HttpHandler.GetContext<TResult>(this, request);
 			Setting.InitializeHttpContext(ctx);
 
-			//自动设置格式
-			if (request.ExceptType == null)
-			{
-				request.ExceptType = GetPreferedResponseType(ctx, streamInvoker, result, targetStream, saveToFile);
-			}
-			request.ExtraRequestInfo = extra;
 			if (isXhr != null)
 				request.AppendAjaxHeader = isXhr.Value;
 			ctx.ContextData = contextData;
@@ -700,7 +418,6 @@ namespace FSLib.Network.Http
 		/// <param name="contentType">设置当发送对象类型时，设置发送类型。不设置或传递null值将会自动判断</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <param name="targetStream">要写入的目标流</param>
-		/// <param name="extra">额外的请求数据</param>
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		public HttpContext<TResult> Create<TResult>(
@@ -717,8 +434,7 @@ namespace FSLib.Network.Http
 			WebHeaderCollection headers = null,
 			ContentType? contentType = null,
 			bool? allowAutoRedirect = null,
-			Stream targetStream = null,
-			ExtraRequestInfo extra = null
+			Stream targetStream = null
 			) where TResult : class
 		{
 			contextData = contextData ?? new Dictionary<string, object>();
@@ -726,7 +442,7 @@ namespace FSLib.Network.Http
 			if (uri == null)
 				return null;
 
-			return Create(method, uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream, extra);
+			return Create(method, uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
 		}
 
 		/// <summary>
@@ -756,23 +472,6 @@ namespace FSLib.Network.Http
 			{
 				context.WebRequest.AllowAutoRedirect = false;
 			}
-		}
-
-		static Dictionary<Type, ContentType?> _contentTypeAttributeDefineCache = new Dictionary<Type, ContentType?>();
-
-		/// <summary>
-		/// 判断指定的对象是否定义了JSON请求结果属性
-		/// </summary>
-		/// <param name="t"></param>
-		/// <returns></returns>
-		public virtual ContentType? GetPreferContentType(Type t)
-		{
-			return _contentTypeAttributeDefineCache.GetValue(t, _ =>
-			{
-				var att = _.GetCustomerAttributes<ContentTypeAttribute>().FirstOrDefault();
-
-				return att.SelectValue(s => (ContentType?)s.ContentType);
-			});
 		}
 
 

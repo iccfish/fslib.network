@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace FSLib.Network.Http
+﻿namespace FSLib.Network.Http.ObjectWrapper
 {
+	using System.Linq;
+
 	/// <summary>
 	/// 数据发送包装接口，表示当前对象支持将数据进行包装以便于在请求中发送
 	/// </summary>

@@ -16,7 +16,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得对应的数据处理类
 		/// </summary>
-		public static event EventHandler<GetPreferedResponseTypeEventArgs> BeforeRequestGetPreferedResponseType;
+		public static event EventHandler<GetPreferredResponseTypeEventArgs> BeforeRequestGetPreferedResponseType;
 
 		/// <summary>
 		/// 请求将发送数据包装为请求承载数据
@@ -47,7 +47,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得对应的数据处理类
 		/// </summary>
-		public static event EventHandler<GetPreferedResponseTypeEventArgs> RequestGetPreferedResponseType;
+		public static event EventHandler<GetPreferredResponseTypeEventArgs> RequestGetPreferedResponseType;
 
 
 		/// <summary>
@@ -147,7 +147,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		/// <param name="sender">引发此事件的源对象</param>
 		/// <param name="ea">包含此事件的参数</param>
-		public static void OnBeforeRequestGetPreferedResponseType(object sender, GetPreferedResponseTypeEventArgs ea)
+		public static void OnBeforeRequestGetPreferedResponseType(object sender, GetPreferredResponseTypeEventArgs ea)
 		{
 			var handler = BeforeRequestGetPreferedResponseType;
 			if (handler != null)
@@ -172,7 +172,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		/// <param name="sender">引发此事件的源对象</param>
 		/// <param name="ea">包含此事件的参数</param>
-		public static void OnRequestGetPreferedResponseType(object sender, GetPreferedResponseTypeEventArgs ea)
+		public static void OnRequestGetPreferedResponseType(object sender, GetPreferredResponseTypeEventArgs ea)
 		{
 			var handler = RequestGetPreferedResponseType;
 			handler?.Invoke(sender, ea);

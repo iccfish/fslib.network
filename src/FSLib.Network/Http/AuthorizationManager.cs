@@ -52,7 +52,7 @@
 		/// <param name="httpContext">当前的上下文</param>
 		public IAuthorization GetAuthorization(HttpContext httpContext)
 		{
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 			return Authorizations.GetValue(httpContext.Request.Host ?? httpContext.Request.Uri.Host ?? "");
 #else
 			return Authorizations.GetValue(httpContext.Request.Uri.Host);

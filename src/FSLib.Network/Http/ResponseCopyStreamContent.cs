@@ -35,7 +35,7 @@ namespace FSLib.Network.Http
 		/// <param name="stream"></param>
 		protected override void ProcessResponse(Stream stream)
 		{
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 			stream.CopyTo(Stream);
 #else
 			var buffer = new byte[4 * 0x400];

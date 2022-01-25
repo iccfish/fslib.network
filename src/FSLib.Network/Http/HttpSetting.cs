@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Forms;
+using System.Text;
 
 namespace FSLib.Network.Http
 {
 	using FSLib.Extension;
+
 	using System.Net;
 	using System.Reflection;
 	using System.Security.Cryptography.X509Certificates;
 	using System.Text.RegularExpressions;
+
+	using ObjectWrapper;
 
 	/// <summary>
 	/// HTTP设置
@@ -20,7 +20,7 @@ namespace FSLib.Network.Http
 	public class HttpSetting : INotifyPropertyChanged
 	{
 
-		private IContentPayloadBuilder _contentPalPayloadBuilder;
+		private IContentPayloadFactory _contentPalPayloadBuilder;
 
 		bool _proxySet = false;
 
@@ -164,9 +164,9 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 内容数据包装工厂
 		/// </summary>
-		public IContentPayloadBuilder ContentPayloadBuilder
+		public IContentPayloadFactory ContentPayloadFactory
 		{
-			get => _contentPalPayloadBuilder ?? (_contentPalPayloadBuilder = new ContentPayloadBuilder());
+			get => _contentPalPayloadBuilder ??= new ContentPayloadFactory();
 			set => _contentPalPayloadBuilder = value;
 		}
 
@@ -189,13 +189,6 @@ namespace FSLib.Network.Http
 		/// 获得或设置是否启用URL字段替换
 		/// </summary>
 		public bool EnableUrlTokenIdentifier { get; set; } = true;
-
-
-		/// <summary>
-		/// 获得或设置如果请求发生了HTTP协议级别的错误（返回码大于400小于等于599），那么返回什么样的内容 
-		/// </summary>
-		/// <value>The response object.</value>
-		public ResponseObjectWrapper ErrorResponseObject { get; set; }
 
 		/// <summary>
 		/// 获得或设置JSON反序列化设置
@@ -307,7 +300,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public static string DefaultUserAgent = string.Format("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.39 Safari/537.36 iFish_Network_Client/{0};", System.Reflection.Assembly.GetExecutingAssembly().GetCustomerAttributes<AssemblyFileVersionAttribute>()[0].Version);
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 		/// <summary>
 		/// 获得或设置是否将网络请求失败标记为任务失败。
 		/// <para>此设置将会影响到<see cref="HttpContext.SendTask()"/>的执行行为。</para>
@@ -491,7 +484,7 @@ namespace FSLib.Network.Http
 
 		static HttpSetting()
 		{
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 			TreatWebErrorAsTaskFail = false;
 #endif
 			_defaultProxy = WebRequest.DefaultWebProxy;

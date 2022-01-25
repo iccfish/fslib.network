@@ -4,29 +4,24 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using FSLib.Extension;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
-using System.IO.Compression;
-using System.Net.Security;
+
+using FSLib.Extension;
 
 namespace FSLib.Network.Http
 {
 	using System.Diagnostics;
 
-	using Extension.FishLib;
-
-	using Newtonsoft.Json;
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 	using System.Threading.Tasks;
 #endif
-
 	/// <summary>
 	/// 封装了一个请求的上下文环境
 	/// </summary>
@@ -41,8 +36,11 @@ namespace FSLib.Network.Http
 
 		HttpPerformance _performance;
 
-		int _requsetResubmit;
-		protected int ReadyStateValue;
+		int _requestResubmit;
+		/// <summary>
+		/// 当前的状态
+		/// </summary>
+		protected int _readyStateValue;
 
 		/// <summary>
 		/// 创建 <see cref="HttpContext" />  的新实例(HttpContext)
@@ -103,14 +101,24 @@ namespace FSLib.Network.Http
 				return;
 			}
 
+			//处理请求数据
+			if (RequestContent == null && Request.AllowRequestBody)
+			{
+				if (Request.RequestPayload == null)
+				{
+					Request.RequestPayload = new byte[0];
+				}
+
+				RequestContent = Client.Setting.ContentPayloadFactory.WrapRequestContent(new RequestWrapRequestContentEventArgs(Client, Request));
+			}
+
 			Request.Normalize(Client, this);
 			WebRequest = Client.HttpHandler.GetRequest(Request.Uri, Request.Method, this);
 			Client.CopyDefaultSettings(this);
 			Request.InitializeWebRequest(this);
-			Request.ExceptType?.OnRequestInit();
 			Client.HttpHandler.PrepareContext(this);
 
-#if NET_GET_45
+#if NET_GET_45 || NET5_0_OR_GREATER
 			WebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
 			 {
 				 var e = new CertificateValidationEventArgs(this, sslPolicyErrors, chain, certificate);
@@ -173,7 +181,7 @@ namespace FSLib.Network.Http
 		{
 			var v1 = (int)originalState;
 			var v2 = (int)currentState;
-			if (Interlocked.CompareExchange(ref ReadyStateValue, v2, v1) == v1)
+			if (Interlocked.CompareExchange(ref _readyStateValue, v2, v1) == v1)
 			{
 				OnStateChanged();
 				return true;
@@ -187,7 +195,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		protected bool CheckCancellation()
 		{
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 			if (Cancelled || (CancellationToken != null && CancellationToken.Value.IsCancellationRequested))
 			{
 				Abort();
@@ -223,23 +231,23 @@ namespace FSLib.Network.Http
 		/// 获得猜测的最理想的返回结果类型
 		/// </summary>
 		/// <returns></returns>
-		protected virtual HttpResponseContent GetPreferedResponseContent()
+		protected virtual HttpResponseContent GetPreferredResponseContent()
 		{
-			var contentType = WebResponse.ContentType;
+			var contentType = WebResponse.ContentType ?? "";
 			var status = (int)WebResponse.StatusCode;
+			var exceptType = Request.ExceptType;
 
 			var index = contentType.IndexOf(";");
 			if (index != -1) contentType = contentType.Substring(0, index); //分解带字符串的
 
-			if (contentType == "text/xml") return new ResponseXmlContent(this, Client, null); //XML
-			if (contentType.StartsWith("image")) return new ResponseImageContent(this, Client); //图片
 
-			if ((contentType == "text/json" || contentType == "application/json") && status >= 400 && status <= 499 && (Request?.ExtraRequestInfo?.ErrorResponseObject ?? Client.Setting.ErrorResponseObject) != null)
-			{
-				return Request.ExtraRequestInfo.ErrorResponseObject.ToResponseObjectContent(this, Client);
-			}
+			if (exceptType == typeof(string) || contentType.StartsWith("text") || contentType == "application/x-javascript")
+				return new ResponseStringContent(this, Client);
 
-			if (contentType.StartsWith("text") || contentType == "application/x-javascript") return new ResponseStringContent(this, Client);
+			if (exceptType == typeof(Image) || contentType.StartsWith("image"))
+				return new ResponseImageContent(this, Client); //图片
+			if (exceptType == typeof(XmlDocument) || contentType == "text/xml")
+				return new ResponseXmlContent(this, Client, null); //XML
 
 			//30x-50x 请求均默认当作文本类型
 			if (status >= 300)
@@ -247,7 +255,22 @@ namespace FSLib.Network.Http
 				return new ResponseStringContent(this, Client);
 			}
 
-			return new ResponseBinaryContent(this, Client);
+			if (exceptType == typeof(byte[]))
+			{
+				return new ResponseBinaryContent(this, Client);
+			}
+
+			if (typeof(Stream).IsAssignableFrom(exceptType))
+			{
+				return new ResponseStreamContent(this, Client);
+			}
+
+			if (typeof(HttpResponseContent).IsAssignableFrom(exceptType))
+			{
+				return (HttpResponseContent)Request.ExceptObject;
+			}
+
+			return new ResponseObjectContent(this, Client);
 		}
 
 		protected virtual void InternalOnRequestFailed()
@@ -401,7 +424,7 @@ namespace FSLib.Network.Http
 				handler(this, EventArgs.Empty);
 			Client.HttpHandler.OnRequestFinished(_ctxEventArgs);
 			Client.OnRequestSuccess(_ctxEventArgs);
-			
+
 		}
 
 		/// <summary>
@@ -461,7 +484,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		protected virtual void OnRequestValidateResponse()
 		{
-			if (Request.ExtraRequestInfo?.Disable302Redirection == true && Response.Redirection != null)
+			if (Request.Disable302Redirection && Response.Redirection != null)
 			{
 				throw new HttpClientException("httpcontext_ex_redirectiondetected");
 			}
@@ -530,7 +553,7 @@ namespace FSLib.Network.Http
 				throw new ArgumentNullException("ex", "ex is null.");
 
 			Exception = ex;
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 			Cancelled = ex is TaskCanceledException || ex is OperationCanceledException;
 #else
 			Cancelled = ex is OperationCanceledException;
@@ -552,7 +575,7 @@ namespace FSLib.Network.Http
 		protected virtual bool SetReadyState(HttpContextState state)
 		{
 			var v = (int)state;
-			if (Interlocked.Exchange(ref ReadyStateValue, v) != v)
+			if (Interlocked.Exchange(ref _readyStateValue, v) != v)
 			{
 				OnStateChanged();
 
@@ -649,7 +672,7 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public DeferredSource<HttpContext> SendAsPromise(bool captureContext = true)
 		{
-			if (ReadyStateValue != 0)
+			if (_readyStateValue != 0)
 				throw new HttpClientException("httpcontext_ex_multiplecall", "SendAsPromise()");
 
 			var def = new Deferred<HttpContext>(captureContext);
@@ -738,7 +761,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public bool IsSended
 		{
-			get { return ReadyStateValue > 0; }
+			get { return _readyStateValue > 0; }
 		}
 
 		/// <summary>
@@ -793,7 +816,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public HttpContextState ReadyState
 		{
-			get { return (HttpContextState)ReadyStateValue; }
+			get { return (HttpContextState)_readyStateValue; }
 		}
 
 		/// <summary>
@@ -828,7 +851,11 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public HttpRequestContent RequestContent
 		{
-			get { return Request.SelectValue(s => s.RequestData); }
+			get => Request?.RequestData;
+			protected set
+			{
+				if (Request != null) Request.RequestData = value;
+			}
 		}
 
 		/// <summary>
@@ -837,8 +864,8 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public bool RequsetResubmit
 		{
-			get => _requsetResubmit > 0;
-			set => _requsetResubmit = value ? 1 : 0;
+			get => _requestResubmit > 0;
+			set => _requestResubmit = value ? 1 : 0;
 		}
 
 		/// <summary>
@@ -851,7 +878,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public HttpResponseContent ResponseContent
 		{
-			get { return Response.SelectValue(s => s.Content); }
+			get { return Response?.Content; }
 		}
 
 		/// <summary>
@@ -879,12 +906,12 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public HttpWebResponse WebResponse { get; private set; }
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 		protected CancellationToken? CancellationToken;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 /// <summary>
 /// 以任务模式发送请求
 /// </summary>
@@ -900,7 +927,7 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public Task<HttpResponseContent> SendAsync(CancellationToken cancellationToken)
 		{
-			if (ReadyStateValue != 0)
+			if (_readyStateValue != 0)
 				throw new HttpClientException("httpcontext_ex_multiplecall", "SendAsync()");
 
 			var tlc = new TaskCompletionSource<HttpResponseContent>();
@@ -1173,51 +1200,7 @@ namespace FSLib.Network.Http
 			}
 
 			//保存Cookies状态
-			if (Response.Cookies != null && Client.CookieContainer != null)
-			{
-				if (!Client.ProcessCookies(this) && Request.CookiesHandleMethod == CookiesHandleMethod.Auto)
-				{
-					if (Client.Setting.UseNonstandardCookieParser)
-					{
-						var header = Response.Headers.GetValues("Set-Cookie");
-						if (header != null)
-						{
-							var headerCopy = new List<string>();
-							foreach (var h in header)
-							{
-								if (headerCopy.Count == 0)
-								{
-									headerCopy.Add(h);
-									continue;
-								}
-
-								if (!Regex.IsMatch(h, @"^[a-z\d-_]+=", RegexOptions.IgnoreCase))
-								{
-									headerCopy[headerCopy.Count - 1] += ", " + h;
-								}
-								else
-								{
-									headerCopy.Add(h);
-								}
-							}
-
-							foreach (var h in headerCopy)
-							{
-								//干掉逗号
-								var commaIndex = h.IndexOf(";");
-								var fh = h.Substring(0, commaIndex).Replace(",", "%2C") + h.Substring(commaIndex);
-
-								Client.CookieContainer.SetCookies(Response.ResponseUri, fh);
-							}
-						}
-					}
-
-					//else
-					//{
-					//	Client.CookieContainer.Add(Response.ResponseUri, Response.Cookies);
-					//}
-				}
-			}
+			UnsafeParseCookies();
 
 			try
 			{
@@ -1233,13 +1216,7 @@ namespace FSLib.Network.Http
 
 			//处理响应
 			OnDetectResponseContentType();
-			if (Request.ExceptType == null)
-			{
-				//没有设置优选，先确定内容
-				Response.Content = GetPreferedResponseContent();
-			}
-			else
-				Response.Content = Request.ExceptType;
+			Response.Content = GetPreferredResponseContent();
 
 			//获得响应流
 			Stream responseStream;
@@ -1371,6 +1348,47 @@ namespace FSLib.Network.Http
 			}
 		}
 
+		/// <summary>
+		/// 使用不安全的方式解析cookies
+		/// </summary>
+		private void UnsafeParseCookies()
+		{
+			if (Response.Cookies == null || Client.CookieContainer == null) return;
+			if (Client.ProcessCookies(this) || Request.CookiesHandleMethod != CookiesHandleMethod.Auto) return;
+			if (!Client.Setting.UseNonstandardCookieParser) return;
+
+			var header = Response.Headers.GetValues("Set-Cookie");
+			if (!(header?.Length > 0)) return;
+
+			var headerCopy = new List<string>();
+			foreach (var h in header)
+			{
+				if (headerCopy.Count == 0)
+				{
+					headerCopy.Add(h);
+					continue;
+				}
+
+				if (!Regex.IsMatch(h, @"^[a-z\d-_]+=", RegexOptions.IgnoreCase))
+				{
+					headerCopy[headerCopy.Count - 1] += ", " + h;
+				}
+				else
+				{
+					headerCopy.Add(h);
+				}
+			}
+
+			foreach (var h in headerCopy)
+			{
+				//干掉逗号
+				var commaIndex = h.IndexOf(";");
+				var fh = h.Substring(0, commaIndex).Replace(",", "%2C") + h.Substring(commaIndex);
+
+				Client.CookieContainer.SetCookies(Response.ResponseUri, fh);
+			}
+		}
+
 		protected virtual void ResponseStreamProcessComplete()
 		{
 			if (CheckCancellation() || CheckException())
@@ -1422,10 +1440,9 @@ namespace FSLib.Network.Http
 			Performance.EndTime = DateTime.Now;
 
 			//重新发送
-			if (Interlocked.Exchange(ref _requsetResubmit, 0) == 1)
+			if (Interlocked.Exchange(ref _requestResubmit, 0) == 1)
 			{
 				OnRequestResubmit();
-				Request.ExceptType?.Reset();
 				WebResponse = null;
 				Response = null;
 				SetReadyState(HttpContextState.NotSended);
@@ -1597,68 +1614,6 @@ namespace FSLib.Network.Http
 
 		#endregion
 
-		#region 辅助函数
-
-		/// <summary>
-		/// Json序列化
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		public virtual string JsonSerialize(object obj)
-		{
-			if (obj == null)
-				return string.Empty;
-
-			if (JsonSerializationSetting == null)
-			{
-				return JsonConvert.SerializeObject(obj);
-			}
-
-			if (JsonSerializationSetting.JsonConverts == null)
-			{
-				return JsonConvert.SerializeObject(obj, JsonSerializationSetting.Formatting, JsonSerializationSetting.Setting);
-			}
-
-			return JsonConvert.SerializeObject(obj, JsonSerializationSetting.Formatting, JsonSerializationSetting.JsonConverts);
-		}
-
-		/// <summary>
-		/// 反序列化目标对象
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="result"></param>
-		/// <param name="originalObj"></param>
-		/// <returns></returns>
-		public virtual T JsonDeserialize<T>(string result, object originalObj)
-		{
-			if (originalObj != null && !(originalObj is T))
-			{
-				originalObj = null;
-			}
-
-			if (originalObj == null || JsonDeserializationSetting == null || !JsonDeserializationSetting.KeepOriginalObject)
-			{
-				if (JsonDeserializationSetting == null)
-					return JsonConvert.DeserializeObject<T>(result);
-				if (JsonDeserializationSetting.JsonConverts == null)
-					return JsonConvert.DeserializeObject<T>(result, JsonDeserializationSetting.Setting);
-				return JsonConvert.DeserializeObject<T>(result, JsonDeserializationSetting.JsonConverts);
-			}
-			else
-			{
-				if (JsonDeserializationSetting == null)
-				{
-					JsonConvert.PopulateObject(result, originalObj);
-				}
-				else
-					JsonConvert.PopulateObject(result, originalObj, JsonDeserializationSetting.Setting);
-
-				return (T)originalObj;
-			}
-		}
-
-		#endregion
-
 		#region Dispose方法实现
 
 		bool _disposed;
@@ -1723,7 +1678,6 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 引发 <see cref="RequestEnd"/> 事件
 		/// </summary>
-		/// <param name="e"></param>
 		protected virtual void OnRequestEnd()
 		{
 			RequestEnd?.Invoke(this, new WebEventArgs(this));
@@ -1731,9 +1685,12 @@ namespace FSLib.Network.Http
 			Client.OnRequestEnd(_ctxEventArgs);
 		}
 
+		/// <summary>
+		/// 在请求发出前触发
+		/// </summary>
 		protected virtual void OnBeforeRequest()
 		{
-			BeforeRequest?.Invoke(this, EventArgs.Empty); 
+			BeforeRequest?.Invoke(this, EventArgs.Empty);
 			Client.HttpHandler.OnBeforeRequest(_ctxEventArgs);
 			Client.OnBeforeRequest(_ctxEventArgs);
 		}
@@ -1769,7 +1726,7 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public new DeferredSource<HttpContext<T>> SendAsPromise(bool captureContext = true)
 		{
-			if (ReadyStateValue != 0)
+			if (_readyStateValue != 0)
 				return null;
 
 			var def = new Deferred<HttpContext<T>>(captureContext);
@@ -1826,11 +1783,11 @@ namespace FSLib.Network.Http
 				}
 				else
 				{
-					CheckResponseType<ResponseObjectContent<T>>();
-					ret = ((ResponseObjectContent<T>)ResponseContent).Object;
+					CheckResponseType<ResponseObjectContent>();
+					ret = ((ResponseObjectContent)ResponseContent).Object;
 				}
 
-				return (T)(object)ret;
+				return (T)ret;
 			}
 		}
 
@@ -1840,7 +1797,7 @@ namespace FSLib.Network.Http
 				throw new InvalidOperationException(SR.HttpContext_CheckResponseType_ResponseTypeMismatch);
 		}
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 /// <summary>
 /// 以任务模式发送请求
 /// </summary>
@@ -1857,7 +1814,7 @@ namespace FSLib.Network.Http
 		/// <returns></returns>
 		public new Task<T> SendAsync(CancellationToken cancellationToken)
 		{
-			if (ReadyStateValue != 0)
+			if (_readyStateValue != 0)
 				return null;
 
 			var tlc = new TaskCompletionSource<T>();

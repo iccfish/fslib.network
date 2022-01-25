@@ -1,91 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace FSLib.Network.Http
 {
 	using System.Text.RegularExpressions;
 
-	using Extension;
+	using Newtonsoft.Json;
 	using Newtonsoft.Json.Linq;
 
-	public abstract class ResponseObjectContentBase<T> : ResponseBinaryContent
-	{
-		T _o;
-
-		/// <summary>
-		/// 创建 <see cref="ResponseObjectContentBase{T}"/>  的新实例(HttpObjectResponseContent)
-		/// </summary>
-		protected ResponseObjectContentBase(HttpContext context, HttpClient client)
-			: base(context, client)
-		{
-		}
-
-		/// <summary>
-		/// 获得反序列化的结果
-		/// </summary>
-		public T Object
-		{
-			get
-			{
-				CheckDisposed();
-				return _o;
-			}
-			protected set { _o = value; }
-		}
-
-		T _objectInternal;
-
-		internal T ObjectInternal { get { return _objectInternal; } set { _objectInternal = Object = value; } }
-
-		/// <summary>
-		/// 返回的数据类型
-		/// </summary>
-		public ResponseContentType ContentType { get; protected set; }
-
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-
-			if (disposing)
-			{
-				if (_o != null && _o is IDisposable)
-				{
-					(_o as IDisposable).Dispose();
-				}
-				_o = default(T);
-			}
-		}
-
-		/// <summary>
-		/// 重置状态
-		/// </summary>
-		public override void Reset()
-		{
-			base.Reset();
-			Object = _objectInternal;
-		}
-	}
-
 	/// <summary>
-	/// 反序列化结果
+	/// 包装了对象的响应结果
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	public class ResponseObjectContent<T> : ResponseObjectContentBase<T>
+	public class ResponseObjectContent : ResponseBinaryContent
 	{
+		private JsonDeserializationSetting DeserializationSetting { get => Client.Setting.JsonDeserializationSetting; }
+
 		/// <summary>
-		/// 创建 <see cref="ResponseObjectContentBase{T}"/>  的新实例(HttpObjectResponseContent)
+		/// 创建 <see cref="ResponseObjectContent"/>  的新实例(HttpObjectResponseContent)
 		/// </summary>
-		public ResponseObjectContent(HttpContext context, HttpClient client)
+		internal ResponseObjectContent(HttpContext context, HttpClient client)
 			: base(context, client)
 		{
 			if (!HttpSetting.DisableComptatibleCheck)
-				HttpSetting.CheckObjectTypeSupport(typeof(T));
+				HttpSetting.CheckObjectTypeSupport(context.Request.ExceptType);
 		}
 
-		#region Overrides of HttpResponseContent
+
+		/// <summary>
+		/// 获得或设置最终结果
+		/// </summary>
+		public object Object { get; private set; }
+
+		/// <summary>
+		/// 获得或设置最终内容类型
+		/// </summary>
+		public ResponseContentType ContentType { get; private set; }
 
 		/// <summary>
 		/// 请求处理最后的内容
@@ -103,19 +51,19 @@ namespace FSLib.Network.Http
 			}
 			if (index >= Result.Length)
 			{
-				Object = default(T);
+				Object = null;
 				return;
 			}
 
-
-			var isJobject = typeof(T) == typeof(JObject) || typeof(T) == typeof(object);
+			var requestType = Context.Request.ExceptType;
+			var isJobject = requestType == typeof(JObject) || requestType == typeof(object);
 
 			try
 			{
 				if (Result[index] == '<')
 				{
 					//XML反序列化
-					Object = (T)typeof(T).XmlDeserialize(Utils.RemoveXmlDeclaration(Utils.NormalizeString(StringResult)));
+					Object = Context.Request.ExceptType.XmlDeserialize(Utils.RemoveXmlDeclaration(Utils.NormalizeString(StringResult)));
 					ContentType = ResponseContentType.Xml;
 				}
 				else if (Result[index] == '{' || Result[index] == '[')
@@ -123,12 +71,12 @@ namespace FSLib.Network.Http
 					ContentType = ResponseContentType.Json;
 					if (isJobject)
 					{
-						Object = (T)(object)JObject.Parse(StringResult);
+						Object = JObject.Parse(StringResult);
 					}
 					else
 					{
 						//JSON反序列化
-						Object = Context.JsonDeserialize<T>(StringResult, Object);
+						Object = Utils.JsonDeserialize(StringResult, Context.Request.ExceptObject, Context.Request.ExceptType, DeserializationSetting);
 					}
 				}
 				else
@@ -136,26 +84,16 @@ namespace FSLib.Network.Http
 					//根据目标结果的类型判断
 					var jsonp = string.Empty;
 
-					if (!IsBinaryContent() && !string.IsNullOrEmpty(jsonp = GetJsonPContent(StringResult)))
+					if (!string.IsNullOrEmpty(jsonp = GetJsonPContent(StringResult)))
 					{
 						//尝试找到JSONP
 						ContentType = ResponseContentType.JsonP;
 
-						if (isJobject)
-						{
-							Object = (T)(object)JObject.Parse(jsonp);
-						}
-						else
-						{
-							//JSON反序列化
-							Object = Context.JsonDeserialize<T>(jsonp, Object);
-						}
+						Object = isJobject ? JObject.Parse(jsonp) : Utils.JsonDeserialize(jsonp, Context.Request.ExceptObject, Context.Request.ExceptType, DeserializationSetting);
 					}
 					else
 					{
-						//二进制序列化
-						Object = (T)BinarySerializeHelper.DeserialzieFromBytes(Result);
-						ContentType = ResponseContentType.Binary;
+						throw new NotSupportedException("Response message not supported.");
 					}
 
 				}
@@ -164,11 +102,11 @@ namespace FSLib.Network.Http
 			{
 				if (ex is InvalidOperationException)
 				{
-					ex = new ObjectSerializationNotSupportException(typeof(T), ex);
+					ex = new ObjectSerializationNotSupportException(requestType, ex);
 				}
 
 				Exception = ex;
-				Object = default(T);
+				Object = default;
 				if (AsyncData == null)
 					throw;
 
@@ -177,21 +115,12 @@ namespace FSLib.Network.Http
 			OnPostContentProcessed();
 		}
 
-		#endregion
 
 		/// <summary>
 		/// 当返回是JsonP的时候，对应的回调函数名
 		/// </summary>
 		public string JsonpCallbackName { get; private set; }
 
-		/// <summary>
-		/// 判断当前的响应是否是二进制响应。如果不是，则会尝试进行文本的反序列化
-		/// </summary>
-		/// <returns></returns>
-		protected virtual bool IsBinaryContent()
-		{
-			return Result.Take(Math.Min(10, Result.Length)).Any(s => s < 20);
-		}
 
 		/// <summary>
 		/// 从一段文本中获得JSON内容

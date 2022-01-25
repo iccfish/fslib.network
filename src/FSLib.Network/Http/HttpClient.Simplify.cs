@@ -12,7 +12,7 @@ using FSLib.Extension;
 
 	using Extension;
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 	using System.Threading.Tasks;
 
 #endif
@@ -307,7 +307,7 @@ using FSLib.Extension;
 			return context;
 		}
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <typeparamref name="T"/> 的请求
@@ -341,7 +341,7 @@ using FSLib.Extension;
 
 #endif
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <see cref="Array"/> 的请求
@@ -373,7 +373,7 @@ using FSLib.Extension;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <see cref="Image"/> 的请求
@@ -405,7 +405,7 @@ using FSLib.Extension;
 
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <see langword="string" /> 的请求
@@ -436,7 +436,7 @@ using FSLib.Extension;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <typeparamref name="T"/> 的请求
@@ -472,7 +472,7 @@ using FSLib.Extension;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <see cref="Array"/> 的请求
@@ -505,7 +505,7 @@ using FSLib.Extension;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <see cref="Image"/> 的请求
@@ -538,7 +538,7 @@ using FSLib.Extension;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 发起一个期望结果类型为 <see langword="string" /> 的请求
@@ -572,7 +572,7 @@ using FSLib.Extension;
 #endif
 
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 
 		/// <summary>
 		/// 带重试的发送请求，直到判定成功或者超过次数。

@@ -11,11 +11,12 @@ namespace FSLib.Network.Http
 	using System.Drawing.Imaging;
 	using System.IO;
 	using System.Reflection;
+using Newtonsoft.Json;
 
-	/// <summary>
-	/// 表示一个对象
-	/// </summary>
-	public class RequestObjectContent<T> : RequestFormDataContent where T : class
+/// <summary>
+/// 表示一个对象
+/// </summary>
+	public class RequestObjectContent<T> : RequestFormDataContent
 	{
 		private IFormDataKeyGenerator _keyGenerator;
 
@@ -126,7 +127,7 @@ namespace FSLib.Network.Http
 								StringField.Add(key, v.XmlSerializeToString());
 								break;
 							case ObjectSerializationType.Json:
-								StringField.Add(key, Context.JsonSerialize(v));
+								StringField.Add(key, Utils.JsonSerialize(v, Context.JsonSerializationSetting));
 								break;
 						}
 						continue;
@@ -192,7 +193,7 @@ namespace FSLib.Network.Http
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			Object = null;
+			Object = default;
 		}
 
 		/// <summary>

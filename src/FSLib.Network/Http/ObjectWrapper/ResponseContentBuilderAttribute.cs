@@ -1,4 +1,4 @@
-﻿namespace FSLib.Network.Http
+﻿namespace FSLib.Network.Http.ObjectWrapper
 {
 	using System;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 using System.Threading.Tasks;
 #endif
 

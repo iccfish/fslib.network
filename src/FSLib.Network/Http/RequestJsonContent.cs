@@ -40,7 +40,7 @@ namespace FSLib.Network.Http
 		public override void Prepare(HttpWebRequest request)
 		{
 			if (_object != null)
-				_jsonContent = Context.JsonSerialize(_object);
+				_jsonContent = Utils.JsonSerialize(_object, Context.JsonSerializationSetting);
 
 			ContentType = ContentType.Json;
 			base.Prepare(request);

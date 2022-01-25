@@ -7,7 +7,7 @@ using System.Text;
 namespace FSLib.Network.Http
 {
 	using System.Threading;
-#if NET_GT_4
+#if NET_GT_4 || NET5_0_OR_GREATER
 	using System.Threading.Tasks;
 #endif
 

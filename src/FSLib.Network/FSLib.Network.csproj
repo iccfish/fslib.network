@@ -1,49 +1,85 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>A strong http client for .NET with high usability</Description>
-    <Copyright>Copyright © 木鱼  2013-2019</Copyright>
-    <AssemblyTitle>FSLib.Network.Http (iFish's Network Library)</AssemblyTitle>
-    <VersionPrefix>2.3.2.0</VersionPrefix>
-    <Authors>iFish</Authors>
-    <TargetFrameworks>net35;net40;net45</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>FSLib.Network</AssemblyName>
-    <AssemblyOriginatorKeyFile>../snk/fslib.network.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>network.fishlee.net</PackageId>
-    <PackageTags>http;web;network;httpclient</PackageTags>
-    <PackageReleaseNotes>修正AcceptEncoding未能正确写入的BUG</PackageReleaseNotes>
-    <PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <DelaySign>False</DelaySign>
-  </PropertyGroup>
-  <ItemGroup>
-    <Content Include="content\**\*" PackagePath="%(Identity)" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="extension.fishlee.net" Version="1.6.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System" />
-  </ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <DefineConstants>$(DefineConstants);NET35</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);NET40;NET_GT_4</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <DefineConstants>$(DefineConstants);NET45;NET_GT_4;NET_GT_45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-    <Version>2.3.2.0</Version>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Description>A strong http client for .NET with high usability</Description>
+		<Copyright>Copyright © 木鱼  2013-2022</Copyright>
+		<AssemblyTitle>FSLib.Network.Http (iFish's Network Library)</AssemblyTitle>
+		<VersionPrefix>2.3.2.0</VersionPrefix>
+		<Authors>iFish</Authors>
+		<TargetFrameworks>net35;net40;net45;net5.0;net6.0</TargetFrameworks>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<AssemblyName>FSLib.Network</AssemblyName>
+		<AssemblyOriginatorKeyFile>../snk/fslib.network.snk</AssemblyOriginatorKeyFile>
+		<SignAssembly>true</SignAssembly>
+		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+		<PackageId>network.fishlee.net</PackageId>
+		<PackageTags>http;web;network;httpclient</PackageTags>
+		<PackageReleaseNotes>修正AcceptEncoding未能正确写入的BUG</PackageReleaseNotes>
+		<PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<DelaySign>False</DelaySign>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="content\**\*" PackagePath="%(Identity)" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\assets\globe.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="extension.fishlee.net" Version="1.6.5" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net35' OR '$(TargetFramework)' == 'net40' OR '$(TargetFramework)' == 'net45'">
+		<Reference Include="System.Core" />
+		<Reference Include="System.Drawing" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Xml" />
+		<Reference Include="System.Xml.Linq" />
+		<Reference Include="System" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<PackageReference Include="System.Drawing.Common" Version="6.0"></PackageReference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="System.Drawing.Common" Version="6.0"></PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Http\RequestContent\" />
+	</ItemGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
+		<DefineConstants>$(DefineConstants);NET35</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+		<DefineConstants>$(DefineConstants);NET40;NET_GT_4</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+		<DefineConstants>$(DefineConstants);NET45;NET_GT_4;NET_GT_45</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<Version>2.3.2.0</Version>
+		<PackageIcon>globe.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 </Project>

@@ -6,6 +6,7 @@ using System.Text;
 namespace FSLib.Network.Http
 {
 	using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 	class Utils
 	{
@@ -30,5 +31,54 @@ namespace FSLib.Network.Http
 			return xml;
 		}
 
+		/// <summary>
+		/// Json序列化
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		public static string JsonSerialize(object obj, JsonSerializationSetting setting)
+		{
+			if (obj == null)
+				return string.Empty;
+
+			if (setting == null)
+			{
+				return JsonConvert.SerializeObject(obj);
+			}
+
+			if (setting.JsonConverts == null)
+			{
+				return JsonConvert.SerializeObject(obj, setting.Formatting, setting.Setting);
+			}
+
+			return JsonConvert.SerializeObject(obj, setting.Formatting, setting.JsonConverts);
+		}
+
+		/// <summary>
+		/// 反序列化目标对象
+		/// </summary>
+		/// <param name="result"></param>
+		/// <param name="originalObj"></param>
+		/// <returns></returns>
+		public static object JsonDeserialize(string result, object originalObj, Type type, JsonDeserializationSetting setting)
+		{
+			if (originalObj == null || setting?.KeepOriginalObject == false)
+			{
+				if (setting == null)
+					return JsonConvert.DeserializeObject(result, type);
+				if (setting.JsonConverts == null)
+					return JsonConvert.DeserializeObject(result, type, setting.Setting);
+				return JsonConvert.DeserializeObject(result, type, setting.JsonConverts);
+			}
+
+			if (setting == null)
+			{
+				JsonConvert.PopulateObject(result, originalObj);
+			}
+			else
+				JsonConvert.PopulateObject(result, originalObj, setting.Setting);
+
+			return originalObj;
+		}
 	}
 }
