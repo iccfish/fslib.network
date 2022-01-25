@@ -280,7 +280,7 @@
 		/// <summary>
 		/// 请求已收到，请求判断响应类型
 		/// </summary>
-		event EventHandler<WebEventArgs> DetectResponseContentType;
+		event EventHandler<GetPreferredResponseTypeEventArgs> DetectResponseContentType;
 
 		/// <summary>
 		/// 性能计数器对象已经新建
@@ -297,7 +297,7 @@
 		/// </summary>
 		event EventHandler<WebEventArgs> RequestCreated;
 
-		void OnDetectResponseContentType(WebEventArgs e);
+		void OnDetectResponseContentType(GetPreferredResponseTypeEventArgs e);
 
 		void OnPerformanceObjectCreated(WebEventArgs e);
 

@@ -17,5 +17,5 @@ public interface IContentPayloadFactory
 	/// </summary>
 	/// <param name="ea">请求参数</param>
 	/// <returns></returns>
-	HttpResponseContent GetResponseContent(GetPreferredResponseTypeEventArgs ea);
+	void GetResponseContent(GetPreferredResponseTypeEventArgs ea);
 }

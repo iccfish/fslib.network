@@ -58,7 +58,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求已收到，请求判断响应类型
 		/// </summary>
-		public event EventHandler DetectResponseContentType;
+		public event EventHandler<GetPreferredResponseTypeEventArgs> DetectResponseContentType;
 
 		/// <summary>
 		/// 性能计数器对象已经新建
@@ -227,52 +227,6 @@ namespace FSLib.Network.Http
 			return true;
 		}
 
-		/// <summary>
-		/// 获得猜测的最理想的返回结果类型
-		/// </summary>
-		/// <returns></returns>
-		protected virtual HttpResponseContent GetPreferredResponseContent()
-		{
-			var contentType = WebResponse.ContentType ?? "";
-			var status = (int)WebResponse.StatusCode;
-			var exceptType = Request.ExceptType;
-
-			var index = contentType.IndexOf(";");
-			if (index != -1) contentType = contentType.Substring(0, index); //分解带字符串的
-
-
-			if (exceptType == typeof(string) || contentType.StartsWith("text") || contentType == "application/x-javascript")
-				return new ResponseStringContent(this, Client);
-
-			if (exceptType == typeof(Image) || contentType.StartsWith("image"))
-				return new ResponseImageContent(this, Client); //图片
-			if (exceptType == typeof(XmlDocument) || contentType == "text/xml")
-				return new ResponseXmlContent(this, Client, null); //XML
-
-			//30x-50x 请求均默认当作文本类型
-			if (status >= 300)
-			{
-				return new ResponseStringContent(this, Client);
-			}
-
-			if (exceptType == typeof(byte[]))
-			{
-				return new ResponseBinaryContent(this, Client);
-			}
-
-			if (typeof(Stream).IsAssignableFrom(exceptType))
-			{
-				return new ResponseStreamContent(this, Client);
-			}
-
-			if (typeof(HttpResponseContent).IsAssignableFrom(exceptType))
-			{
-				return (HttpResponseContent)Request.ExceptObject;
-			}
-
-			return new ResponseObjectContent(this, Client);
-		}
-
 		protected virtual void InternalOnRequestFailed()
 		{
 			IsFinished = true;
@@ -330,10 +284,10 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 引发 <see cref="DetectResponseContentType"/> 事件
 		/// </summary>
-		protected virtual void OnDetectResponseContentType()
+		protected virtual void OnDetectResponseContentType(GetPreferredResponseTypeEventArgs ea)
 		{
-			DetectResponseContentType?.Invoke(this, EventArgs.Empty);
-			Client.HttpHandler.OnDetectResponseContentType(_ctxEventArgs);
+			DetectResponseContentType?.Invoke(this, ea);
+			Client.HttpHandler.OnDetectResponseContentType(ea);
 		}
 
 		/// <summary>
@@ -705,7 +659,7 @@ namespace FSLib.Network.Http
 			get => _captureContext;
 			set
 			{
-				if (IsSended)
+				if (IsSent)
 					throw new InvalidOperationException();
 
 				_captureContext = value;
@@ -727,8 +681,8 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public Dictionary<string, object> ContextData
 		{
-			get { return _contextData ?? (_contextData = new Dictionary<string, object>()); }
-			set { _contextData = value; }
+			get { return _contextData ??= new Dictionary<string, object>(); }
+			set => _contextData = value;
 		}
 
 		/// <summary>
@@ -759,10 +713,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得当前的请求是否已经发送
 		/// </summary>
-		public bool IsSended
-		{
-			get { return _readyStateValue > 0; }
-		}
+		public bool IsSent => _readyStateValue > 0;
 
 		/// <summary>
 		/// 获得是否成功
@@ -814,10 +765,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得就绪状态
 		/// </summary>
-		public HttpContextState ReadyState
-		{
-			get { return (HttpContextState)_readyStateValue; }
-		}
+		public HttpContextState ReadyState => (HttpContextState)_readyStateValue;
 
 		/// <summary>
 		/// 获得当前的重定向
@@ -826,7 +774,7 @@ namespace FSLib.Network.Http
 		{
 			get
 			{
-				if (!IsSended || !IsFinished)
+				if (!IsSent || !IsFinished)
 				{
 					return null;
 				}
@@ -862,7 +810,7 @@ namespace FSLib.Network.Http
 		/// 获得或设置当前请求是否需要重新发送。仅在请求结束的时候有效。
 		/// 如果设置为true，则请求将会被重新发送。
 		/// </summary>
-		public bool RequsetResubmit
+		public bool HasRequestResubmit
 		{
 			get => _requestResubmit > 0;
 			set => _requestResubmit = value ? 1 : 0;
@@ -876,10 +824,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 获得实际响应内容
 		/// </summary>
-		public HttpResponseContent ResponseContent
-		{
-			get { return Response?.Content; }
-		}
+		public HttpResponseContent ResponseContent => Response?.Content;
 
 		/// <summary>
 		/// 获得或设置发送之前等待的时间
@@ -1215,13 +1160,20 @@ namespace FSLib.Network.Http
 			}
 
 			//处理响应
-			OnDetectResponseContentType();
-			Response.Content = GetPreferredResponseContent();
+			var ea = new GetPreferredResponseTypeEventArgs(Client, this, Request);
+			OnDetectResponseContentType(ea);
+			Client.Setting.ContentPayloadFactory.GetResponseContent(ea);
+			Response.Content = ea.ResponseContent;
 
 			//获得响应流
 			Stream responseStream;
 			try
 			{
+				if (ResponseContent == null)
+				{
+					SetException(new Exception("Unable to obtain a response content."));
+				}
+
 				Response.Content.Initialize();
 				OnResponseContentObjectIntialized();
 

@@ -105,7 +105,7 @@ namespace FSLib.Network.Http.Scripts
 					var nextRequest = _context.Client.Create<string>(HttpMethod.Get, new Uri(_reponseUri, _dynamicurl)).Send();
 					if (nextRequest.IsRedirection)
 					{
-						_context.RequsetResubmit = true;
+						_context.HasRequestResubmit = true;
 					}
 				}
 			}

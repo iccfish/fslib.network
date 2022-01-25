@@ -309,7 +309,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求已收到，请求判断响应类型
 		/// </summary>
-		public virtual event EventHandler<WebEventArgs> DetectResponseContentType;
+		public virtual event EventHandler<GetPreferredResponseTypeEventArgs> DetectResponseContentType;
 
 		/// <summary>
 		/// 性能计数器对象已经新建
@@ -331,7 +331,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public virtual event EventHandler<WebEventArgs> BeforeRequest;
 
-		public virtual void OnDetectResponseContentType(WebEventArgs e) => DetectResponseContentType?.Invoke(this, e);
+		public virtual void OnDetectResponseContentType(GetPreferredResponseTypeEventArgs e) => DetectResponseContentType?.Invoke(this, e);
 
 		public virtual void OnPerformanceObjectCreated(WebEventArgs e) => PerformanceObjectCreated?.Invoke(this, e);
 

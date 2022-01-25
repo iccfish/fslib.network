@@ -24,6 +24,11 @@
 		<Content Include="content\**\*" PackagePath="%(Identity)" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Remove="Http\RequestContent\**" />
+	  <EmbeddedResource Remove="Http\RequestContent\**" />
+	  <None Remove="Http\RequestContent\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<None Include="..\..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -63,9 +68,6 @@
 			<Generator>SettingsSingleFileGenerator</Generator>
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
 		</None>
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Http\RequestContent\" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
 		<DefineConstants>$(DefineConstants);NET35</DefineConstants>

@@ -35,7 +35,7 @@ namespace FSLib.Network.Http
 			if (ctx == null)
 				throw new ArgumentNullException(nameof(ctx));
 
-			if (!ctx.IsSended)
+			if (!ctx.IsSent)
 				throw new InvalidOperationException();
 
 			if (!ctx.IsSuccess || ctx.Result == null)

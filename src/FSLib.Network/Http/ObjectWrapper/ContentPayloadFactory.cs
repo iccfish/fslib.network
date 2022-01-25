@@ -12,7 +12,7 @@ public class ContentPayloadFactory : IContentPayloadFactory
 	class BuilderContextItem
 	{
 		public Func<RequestWrapRequestContentEventArgs, HttpRequestContent> CachedWrapMethod { get; set; }
-		public Func<GetPreferredResponseTypeEventArgs, HttpResponseContent> CachedGetResponseContentMethod { get; set; }
+		public Action<GetPreferredResponseTypeEventArgs> CachedGetResponseContentMethod { get; set; }
 
 		public object BuilderObject { get; set; }
 
@@ -63,14 +63,14 @@ public class ContentPayloadFactory : IContentPayloadFactory
 	/// 包装内容
 	/// </summary>
 	/// <returns></returns>
-	public HttpResponseContent GetResponseContent(GetPreferredResponseTypeEventArgs ea)
+	public void GetResponseContent(GetPreferredResponseTypeEventArgs ea)
 	{
 		if (ea.ResultType == null)
-			return null;
+			return;
 
 		var contextItem = GetBuilderContextItem(ea.ResultType);
 
-		return contextItem?.CachedGetResponseContentMethod?.Invoke(ea);
+		contextItem?.CachedGetResponseContentMethod?.Invoke(ea);
 	}
 
 
@@ -102,7 +102,7 @@ public class ContentPayloadFactory : IContentPayloadFactory
 
 			if (item.CachedWrapMethod == null)
 				BuildRequestContentMethod(typeof(DefaultContentPayloadBuilder), item);
-			if(item.CachedGetResponseContentMethod==null)
+			if (item.CachedGetResponseContentMethod == null)
 				BuildResponseContentMethod(typeof(DefaultContentPayloadBuilder), item);
 
 			_contextCache.Add(type, item);
@@ -144,10 +144,10 @@ public class ContentPayloadFactory : IContentPayloadFactory
 		var p2 = Expression.Parameter(typeof(GetPreferredResponseTypeEventArgs), "p2");
 		var callMethod = Expression.Call(
 			Expression.Constant(item.BuilderObject),
-			t.GetMethod("BuildResponseContentWrap"),
+			t.GetMethod(nameof(IResponseContentBuilder.BuildResponseContentWrap)),
 			p2
 		);
 
-		item.CachedGetResponseContentMethod = Expression.Lambda<Func<GetPreferredResponseTypeEventArgs, HttpResponseContent>>(callMethod, p2).Compile();
+		item.CachedGetResponseContentMethod = Expression.Lambda<Action<GetPreferredResponseTypeEventArgs>>(callMethod, p2).Compile();
 	}
 }

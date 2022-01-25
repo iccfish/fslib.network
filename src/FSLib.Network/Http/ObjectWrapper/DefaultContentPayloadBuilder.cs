@@ -10,30 +10,44 @@ namespace FSLib.Network.Http.ObjectWrapper
 	public class DefaultContentPayloadBuilder : IContentPayloadBuilder
 	{
 		/// <inheritdoc />
-		public HttpResponseContent GetResponseContent(GetPreferredResponseTypeEventArgs ea)
+		public void GetResponseContent(GetPreferredResponseTypeEventArgs ea)
 		{
-
 			GlobalEvents.OnBeforeRequestGetPreferedResponseType(this, ea);
+			if (ea.Handled)
+				return;
 
 			var content = ea.ResponseContent;
 			var req = ea.Request;
 			var ctx = ea.HttpContext;
 			var client = ea.HttpClient;
 			var resultType = req.ExceptType;
+			var contentType = ea.HttpContext.WebResponse.ContentType ?? "";
+			var status = (int)ea.HttpContext.WebResponse.StatusCode;
+
+			var index = contentType.IndexOf(";");
+			if (index != -1) contentType = contentType.Substring(0, index); //分解带字符串的
 
 
 			if (!req.SaveToFile.IsNullOrEmpty())
 			{
 				content = new ResponseFileContent(ctx, client, req.SaveToFile);
 			}
-			else if (resultType != typeof(object))
+			else
 			{
-				if (resultType == typeof(string))
+				if (resultType == typeof(string) || contentType.StartsWith("text") || contentType == "application/x-javascript")
+					content = new ResponseStringContent(ctx, client);
+				else if (resultType == typeof(Image) || contentType.StartsWith("image"))
+					content = new ResponseImageContent(ctx, client); //图片
+				else if (resultType == typeof(XmlDocument) || contentType == "text/xml")
+					content = new ResponseXmlContent(ctx, client, null); //XML
+				else if (status >= 300) //30x-50x 请求均默认当作文本类型
 					content = new ResponseStringContent(ctx, client);
 				else if (resultType == typeof(byte[]))
 					content = new ResponseBinaryContent(ctx, client);
-				else if (resultType == typeof(Image))
-					content = new ResponseImageContent(ctx, client);
+				else if (typeof(Stream).IsAssignableFrom(resultType))
+					content = new ResponseCopyStreamContent(ctx, client, req.CopyToStream ?? new MemoryStream());
+				else if (typeof(HttpResponseContent).IsAssignableFrom(resultType))
+					content = (HttpResponseContent)req.ExceptObject;
 				else if (resultType == typeof(XmlDocument))
 					content = new ResponseXmlContent(ctx, client, (XmlDocument)req.ExceptObject);
 				else if (resultType == typeof(EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs>))
@@ -46,24 +60,18 @@ namespace FSLib.Network.Http.ObjectWrapper
 
 					content = r;
 				}
-				else if (typeof(Stream).IsAssignableFrom(resultType))
-				{
-					content = new ResponseCopyStreamContent(ctx, client, req.CopyToStream ?? new MemoryStream());
-				}
 				else
 					content = new ResponseObjectContent(ctx, client);
+
 			}
-			else content = null; //为null，等待请求自动判断
 
 			ea.ResponseContent = content;
-			
+
 			//Global events
 			GlobalEvents.OnRequestGetPreferedResponseType(this, ea);
 
 			//http handler
 			ctx.Client.HttpHandler.GetPreferredResponseType(ea);
-
-			return ea.ResponseContent;
 		}
 
 		static Dictionary<Type, ContentType?> _contentTypeAttributeDefineCache = new();
@@ -75,7 +83,8 @@ namespace FSLib.Network.Http.ObjectWrapper
 		/// <returns></returns>
 		public virtual ContentType? GetPreferContentType(Type t)
 		{
-			return _contentTypeAttributeDefineCache.GetValue(t, _ =>
+			return _contentTypeAttributeDefineCache.GetValue(t,
+				_ =>
 				{
 					var att = _.GetCustomerAttributes<ContentTypeAttribute>().FirstOrDefault();
 
@@ -189,6 +198,5 @@ namespace FSLib.Network.Http.ObjectWrapper
 		/// <param name="data"></param>
 		/// <returns></returns>
 		public virtual HttpRequestContent WrapRequestDataToJsonContent<T>(T data) => new RequestJsonContent(data);
-
 	}
 }

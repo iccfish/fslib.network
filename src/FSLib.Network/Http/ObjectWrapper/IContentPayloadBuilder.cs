@@ -10,7 +10,7 @@
 		/// </summary>
 		/// <returns>负责接收并解析数据的 <see cref="HttpResponseContent"/></returns>
 		/// <returns></returns>
-		HttpResponseContent GetResponseContent(GetPreferredResponseTypeEventArgs ea);
+		void GetResponseContent(GetPreferredResponseTypeEventArgs ea);
 
 		/// <summary>
 		/// 对请求数据进行封装
