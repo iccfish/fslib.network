@@ -13,7 +13,7 @@
 		<PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
 		<PackageId>network.fishlee.net</PackageId>
 		<PackageTags>http;web;network;httpclient</PackageTags>
-		<PackageReleaseNotes>修正AcceptEncoding未能正确写入的BUG</PackageReleaseNotes>
+		<PackageReleaseNotes>支持到net6.0</PackageReleaseNotes>
 		<PackageIconUrl>https://ssl-static.fishlee.net/resources/images/coquette/32x32/global.png</PackageIconUrl>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/iccfish/fslib.network</RepositoryUrl>
@@ -39,7 +39,7 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="extension.fishlee.net" Version="1.6.5" />
+		<PackageReference Include="extension.fishlee.net" Version="1.6.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net35' OR '$(TargetFramework)' == 'net40' OR '$(TargetFramework)' == 'net45'">
@@ -84,5 +84,6 @@
 		<PackageIcon>globe.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageProjectUrl>https://blog.iccfish.com/</PackageProjectUrl>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
 	</PropertyGroup>
 </Project>
