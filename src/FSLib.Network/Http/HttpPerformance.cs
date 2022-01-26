@@ -30,7 +30,7 @@ namespace FSLib.Network.Http
         /// <summary>
         /// 请求已发送长度
         /// </summary>
-        public long RequestLengthSended { get; internal set; }
+        public long RequestLengthSent { get; internal set; }
 
         /// <summary>
         /// 响应长度

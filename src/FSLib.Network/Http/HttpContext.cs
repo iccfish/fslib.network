@@ -85,7 +85,7 @@ namespace FSLib.Network.Http
 			if (CheckCancellation() || CheckException())
 				return;
 
-			if (!ChangeReadyState(HttpContextState.NotSended, HttpContextState.Init))
+			if (!ChangeReadyState(HttpContextState.NotSend, HttpContextState.Init))
 				return;
 
 			Performance = new HttpPerformance(this);
@@ -407,7 +407,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 引发 <see cref="RequestSent" /> 事件
 		/// </summary>
-		protected virtual void OnRequestSended()
+		protected virtual void OnRequestSent()
 		{
 			var handler = RequestSent;
 			if (handler != null)
@@ -976,7 +976,7 @@ namespace FSLib.Network.Http
 			Performance.GetRequestStreamTime = DateTime.Now;
 			embedStream.ProgressChanged += (s, e) =>
 			{
-				Performance.RequestLengthSended = e.BytesPassed;
+				Performance.RequestLengthSent = e.BytesPassed;
 				if (_operation != null)
 					_operation.Post(_1 => OnRequestDataSendProgressChanged(e), null);
 				else
@@ -1057,7 +1057,7 @@ namespace FSLib.Network.Http
 
 		protected virtual void FlushRequestData()
 		{
-			OnRequestSended();
+			OnRequestSent();
 			Performance.CompleteRequestStreamTime = DateTime.Now;
 			if (!ChangeReadyState(HttpContextState.WriteRequestData, HttpContextState.WaitingResponseHeader))
 			{
@@ -1396,7 +1396,7 @@ namespace FSLib.Network.Http
 				OnRequestResubmit();
 				WebResponse = null;
 				Response = null;
-				SetReadyState(HttpContextState.NotSended);
+				SetReadyState(HttpContextState.NotSend);
 				Send();
 
 				return;

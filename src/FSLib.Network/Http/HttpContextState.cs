@@ -13,7 +13,7 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 未发送
 		/// </summary>
-		NotSended = 0,
+		NotSend = 0,
 		/// <summary>
 		/// 正在初始化
 		/// </summary>
