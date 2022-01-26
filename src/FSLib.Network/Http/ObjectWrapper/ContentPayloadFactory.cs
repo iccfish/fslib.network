@@ -11,7 +11,7 @@ public class ContentPayloadFactory : IContentPayloadFactory
 {
 	class BuilderContextItem
 	{
-		public Func<RequestWrapRequestContentEventArgs, HttpRequestContent> CachedWrapMethod { get; set; }
+		public Action<RequestWrapRequestContentEventArgs> CachedWrapMethod { get; set; }
 		public Action<GetPreferredResponseTypeEventArgs> CachedGetResponseContentMethod { get; set; }
 
 		public object BuilderObject { get; set; }
@@ -49,14 +49,14 @@ public class ContentPayloadFactory : IContentPayloadFactory
 	/// </summary>
 	/// <param name="ea"></param>
 	/// <returns></returns>
-	public HttpRequestContent WrapRequestContent(RequestWrapRequestContentEventArgs ea)
+	public void WrapRequestContent(RequestWrapRequestContentEventArgs ea)
 	{
-		if (ea.RequestContent == null)
-			return null;
+		if (ea.RequestPayload == null)
+			return;
 
-		var contextItem = GetBuilderContextItem(ea.RequestContent.GetType());
+		var contextItem = GetBuilderContextItem(ea.RequestPayload.GetType());
 
-		return contextItem?.CachedWrapMethod?.Invoke(ea);
+		contextItem?.CachedWrapMethod?.Invoke(ea);
 	}
 
 	/// <summary>
@@ -114,10 +114,9 @@ public class ContentPayloadFactory : IContentPayloadFactory
 	static void BuildRequestContentMethod(Type t, BuilderContextItem item)
 	{
 		//get interface type
-		var iface = t.GetInterface(typeof(IRequestContentBuilder<>).FullName);
+		var iface = t.GetInterface(typeof(IContentPayloadBuilder).FullName);
 		if (iface == null)
 			return;
-		var dataType = iface.GetGenericArguments()[0];
 
 		if (item.BuilderObject == null)
 			item.BuilderObject = GetBuilderObject(t);
@@ -125,16 +124,16 @@ public class ContentPayloadFactory : IContentPayloadFactory
 		var p2 = Expression.Parameter(typeof(RequestWrapRequestContentEventArgs), "p1");
 		var callMethod = Expression.Call(
 			Expression.Constant(item.BuilderObject),
-			t.GetMethod("BuildRequestContent"),
+			t.GetMethod(nameof(IContentPayloadBuilder.WrapRequestContent)),
 			p2
 		);
 
-		item.CachedWrapMethod = Expression.Lambda<Func<RequestWrapRequestContentEventArgs, HttpRequestContent>>(callMethod, p2).Compile();
+		item.CachedWrapMethod = Expression.Lambda<Action<RequestWrapRequestContentEventArgs>>(callMethod, p2).Compile();
 	}
 
 	static void BuildResponseContentMethod(Type t, BuilderContextItem item)
 	{
-		var iface = t.GetInterface(typeof(IResponseContentBuilder).FullName);
+		var iface = t.GetInterface(typeof(IContentPayloadBuilder).FullName);
 		if (iface == null)
 			return;
 
@@ -144,7 +143,7 @@ public class ContentPayloadFactory : IContentPayloadFactory
 		var p2 = Expression.Parameter(typeof(GetPreferredResponseTypeEventArgs), "p2");
 		var callMethod = Expression.Call(
 			Expression.Constant(item.BuilderObject),
-			t.GetMethod(nameof(IResponseContentBuilder.BuildResponseContentWrap)),
+			t.GetMethod(nameof(IContentPayloadBuilder.GetResponseContent)),
 			p2
 		);
 

@@ -16,6 +16,6 @@
 		/// 对请求数据进行封装
 		/// </summary>
 		/// <returns>包装了数据的 <see cref="HttpRequestContent"/></returns>
-		HttpRequestContent WrapRequestContent(RequestWrapRequestContentEventArgs ea);
+		void WrapRequestContent(RequestWrapRequestContentEventArgs ea);
 	}
 }

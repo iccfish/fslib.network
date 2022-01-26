@@ -103,19 +103,6 @@
 		}
 
 		/// <summary>
-		/// 请求转换请求承载的内容为最终可以发送的数据，并确定其承载方式
-		/// </summary>
-		/// <param name="client">当前的客户端</param>
-		/// <param name="requestContent">请求的内容</param>
-		/// <param name="data">要发送的数据</param>
-		/// <param name="contentTypeType">承载的方式</param>
-		/// <returns></returns>
-		public override HttpRequestContent WrapRequestContent(HttpClient client, HttpRequestContent requestContent, object data, ContentType? contentTypeType)
-		{
-			return requestContent;
-		}
-
-		/// <summary>
 		/// 确定要使用的本地IP端口
 		/// </summary>
 		/// <remarks>

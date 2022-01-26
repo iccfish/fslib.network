@@ -23,6 +23,11 @@
 		public HttpRequestContent RequestContent { get; set; }
 
 		/// <summary>
+		/// 获得请求荷载
+		/// </summary>
+		public object RequestPayload => RequestMessage?.RequestPayload;
+
+		/// <summary>
 		/// 获得或设置已处理的标记
 		/// </summary>
 		public bool Handled { get; set; }

@@ -10,7 +10,7 @@ public interface IContentPayloadFactory
 	/// </summary>
 	/// <param name="ea">请求参数</param>
 	/// <returns></returns>
-	HttpRequestContent WrapRequestContent(RequestWrapRequestContentEventArgs ea);
+	void WrapRequestContent(RequestWrapRequestContentEventArgs ea);
 
 	/// <summary>
 	/// 包装内容

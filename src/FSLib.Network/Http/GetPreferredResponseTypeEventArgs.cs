@@ -23,17 +23,17 @@
 		/// <summary>
 		/// 获得目标类型
 		/// </summary>
-		public Type ResultType { get; private set; }
+		public Type ResultType => Request?.ExceptType;
 
 		/// <summary>
 		/// 获得已有目标数据
 		/// </summary>
-		public object TargetObject { get; private set; }
+		public object TargetObject => Request?.ExceptObject;
 
 		/// <summary>
 		/// 获得要将当前请求写入的文件路径
 		/// </summary>
-		public string SaveToFilePath { get; private set; }
+		public string SaveToFilePath => Request?.SaveToFile;
 
 		/// <summary>
 		/// 获得处理当前数据片段的事件处理句柄
@@ -43,7 +43,7 @@
 		/// <summary>
 		/// 获得要写入的目标流
 		/// </summary>
-		public Stream TargetStream { get; private set; }
+		public Stream TargetStream => Request?.CopyToStream;
 
 		/// <summary>
 		/// 获得或设置当前的数据处理类

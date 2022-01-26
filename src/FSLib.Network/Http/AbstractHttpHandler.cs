@@ -57,12 +57,8 @@ namespace FSLib.Network.Http
 		/// <summary>
 		/// 请求转换请求承载的内容为最终可以发送的数据，并确定其承载方式
 		/// </summary>
-		/// <param name="client">当前的客户端</param>
-		/// <param name="requestContent">请求的内容</param>
-		/// <param name="data">要发送的数据</param>
-		/// <param name="contentTypeType">承载的方式</param>
 		/// <returns></returns>
-		public abstract HttpRequestContent WrapRequestContent(HttpClient client, HttpRequestContent requestContent, object data, ContentType? contentTypeType);
+		public virtual void WrapRequestContent(RequestWrapRequestContentEventArgs e) { }
 
 		/// <summary>
 		/// 获得比较最适合的用于处理响应的类型

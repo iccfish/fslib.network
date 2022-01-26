@@ -102,14 +102,17 @@ namespace FSLib.Network.Http
 			}
 
 			//处理请求数据
-			if (RequestContent == null && Request.AllowRequestBody)
+			if (Request.AllowRequestBody)
 			{
 				if (Request.RequestPayload == null)
-				{
 					Request.RequestPayload = new byte[0];
-				}
+			}
 
-				RequestContent = Client.Setting.ContentPayloadFactory.WrapRequestContent(new RequestWrapRequestContentEventArgs(Client, Request));
+			if (Request.RequestPayload != null)
+			{
+				var ea = new RequestWrapRequestContentEventArgs(Client, Request);
+				Client.Setting.ContentPayloadFactory.WrapRequestContent(ea);
+				RequestContent = ea.RequestContent;
 			}
 
 			Request.Normalize(Client, this);
@@ -857,10 +860,10 @@ namespace FSLib.Network.Http
 
 
 #if NET_GT_4 || NET5_0_OR_GREATER
-/// <summary>
-/// 以任务模式发送请求
-/// </summary>
-/// <returns></returns>
+		/// <summary>
+		/// 以任务模式发送请求
+		/// </summary>
+		/// <returns></returns>
 		public Task<HttpResponseContent> SendAsync()
 		{
 			return SendAsync(new CancellationToken());
@@ -1096,7 +1099,8 @@ namespace FSLib.Network.Http
 				if (WebResponse.StatusCode != HttpStatusCode.RequestedRangeNotSatisfiable)
 				{
 					//发生错误，清掉期待类型以便于猜测
-					Request.ExceptType = null;
+					Request.ExceptType = typeof(string);
+					Request.ExceptObject = null;
 					Response = new HttpResponseMessage(WebResponse);
 				}
 			}
@@ -1163,17 +1167,12 @@ namespace FSLib.Network.Http
 			var ea = new GetPreferredResponseTypeEventArgs(Client, this, Request);
 			OnDetectResponseContentType(ea);
 			Client.Setting.ContentPayloadFactory.GetResponseContent(ea);
-			Response.Content = ea.ResponseContent;
 
 			//获得响应流
 			Stream responseStream;
 			try
 			{
-				if (ResponseContent == null)
-				{
-					SetException(new Exception("Unable to obtain a response content."));
-				}
-
+				Response.Content = ea.ResponseContent ?? throw new Exception("Unable to obtain a response content.");
 				Response.Content.Initialize();
 				OnResponseContentObjectIntialized();
 
@@ -1750,10 +1749,10 @@ namespace FSLib.Network.Http
 		}
 
 #if NET_GT_4 || NET5_0_OR_GREATER
-/// <summary>
-/// 以任务模式发送请求
-/// </summary>
-/// <returns></returns>
+		/// <summary>
+		/// 以任务模式发送请求
+		/// </summary>
+		/// <returns></returns>
 		public new Task<T> SendAsync()
 		{
 			return SendAsync(new CancellationToken());

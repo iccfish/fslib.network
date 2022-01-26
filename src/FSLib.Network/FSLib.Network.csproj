@@ -80,8 +80,9 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
-		<Version>2.3.2.0</Version>
+		<Version>3.0.0</Version>
 		<PackageIcon>globe.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://blog.iccfish.com/</PackageProjectUrl>
 	</PropertyGroup>
 </Project>

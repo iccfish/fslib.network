@@ -299,7 +299,7 @@ namespace FSLib.Network.Http
 			Uri uri,
 			string refer = null,
 			object data = null,
-			TResult result = default(TResult),
+			TResult result = default,
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
@@ -310,7 +310,7 @@ namespace FSLib.Network.Http
 			bool? allowAutoRedirect = null,
 			Stream targetStream = null
 			) where TResult : class
-			=> Create<TResult>(method.ToString().ToUpper(), uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
+			=> Create(method.ToString().ToUpper(), uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
 
 		/// <summary>
 		/// 创建网络请求
@@ -336,7 +336,7 @@ namespace FSLib.Network.Http
 			Uri uri,
 			string refer = null,
 			object data = null,
-			TResult result = default(TResult),
+			TResult result = default,
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
@@ -353,7 +353,8 @@ namespace FSLib.Network.Http
 			if (uri == null)
 				throw new ArgumentNullException(nameof(uri), $"{nameof(uri)} is null.");
 
-			if (typeof(TResult) == typeof(object))
+			var resultType = typeof(TResult);
+			if (resultType == typeof(object))
 			{
 				throw new InvalidOperationException("context type cannot be object.");
 			}
@@ -361,7 +362,6 @@ namespace FSLib.Network.Http
 			contextData ??= new Dictionary<string, object>();
 			method = method.ToUpper();
 
-			var resultType = typeof(TResult);
 			if (streamInvoker != null && typeof(Stream) == resultType)
 				throw new InvalidOperationException("非流结果时不可设置流操作");
 
@@ -370,7 +370,7 @@ namespace FSLib.Network.Http
 			{
 				Referer = referUri?.OriginalString ?? refer,
 				//自动设置格式
-				ExceptType = typeof(TResult),
+				ExceptType = resultType,
 				ExceptObject = result,
 			};
 			if (data != null)
@@ -425,7 +425,7 @@ namespace FSLib.Network.Http
 			string url,
 			string refer = null,
 			object data = null,
-			TResult result = default(TResult),
+			TResult result = default,
 			string saveToFile = null,
 			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
 			bool async = false,
@@ -437,7 +437,6 @@ namespace FSLib.Network.Http
 			Stream targetStream = null
 			) where TResult : class
 		{
-			contextData = contextData ?? new Dictionary<string, object>();
 			var uri = ResolveUri(null, url, contextData);
 			if (uri == null)
 				return null;

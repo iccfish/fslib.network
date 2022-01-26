@@ -96,10 +96,10 @@ namespace FSLib.Network.Http.ObjectWrapper
 		/// 对请求数据进行包装，转换为合适的请求类型，并返回对应的负载类型
 		/// </summary>
 		/// <returns>经过包装的 <see cref="HttpRequestContent"/> 对象</returns>
-		public virtual HttpRequestContent WrapRequestContent(RequestWrapRequestContentEventArgs e)
+		public virtual void WrapRequestContent(RequestWrapRequestContentEventArgs e)
 		{
 			if (e.RequestMessage.RequestPayload == null)
-				return null;
+				return;
 
 			var message = e.RequestMessage;
 			var data = message.RequestPayload;
@@ -107,7 +107,7 @@ namespace FSLib.Network.Http.ObjectWrapper
 			GlobalEvents.OnBeforeRequestWrapRequestContent(this, e);
 			var content = e.RequestContent;
 			if (e.Handled)
-				return content;
+				return;
 
 			var type = e.RequestMessage.ContentType.Value;
 
@@ -133,11 +133,11 @@ namespace FSLib.Network.Http.ObjectWrapper
 					content = WrapRequestDataToObjectContent(data, type);
 			}
 
+			e.RequestContent = content;
+
 			//全局事件
 			GlobalEvents.OnRequestWrapRequestContent(this, e);
-			content = e.HttpClient.HttpHandler.WrapRequestContent(e.HttpClient, content, data, type);
-
-			return content;
+			e.HttpClient.HttpHandler.WrapRequestContent(e);
 		}
 
 		/// <summary>

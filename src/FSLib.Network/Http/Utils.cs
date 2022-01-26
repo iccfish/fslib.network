@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FSLib.Network.Http
 {
 	using System.Text.RegularExpressions;
-using Newtonsoft.Json;
+
+	using Newtonsoft.Json;
 
 	class Utils
 	{
@@ -62,23 +60,12 @@ using Newtonsoft.Json;
 		/// <returns></returns>
 		public static object JsonDeserialize(string result, object originalObj, Type type, JsonDeserializationSetting setting)
 		{
-			if (originalObj == null || setting?.KeepOriginalObject == false)
-			{
-				if (setting == null)
-					return JsonConvert.DeserializeObject(result, type);
-				if (setting.JsonConverts == null)
-					return JsonConvert.DeserializeObject(result, type, setting.Setting);
-				return JsonConvert.DeserializeObject(result, type, setting.JsonConverts);
-			}
 
 			if (setting == null)
-			{
-				JsonConvert.PopulateObject(result, originalObj);
-			}
-			else
-				JsonConvert.PopulateObject(result, originalObj, setting.Setting);
-
-			return originalObj;
+				return JsonConvert.DeserializeObject(result, type);
+			if (setting.JsonConverts == null)
+				return JsonConvert.DeserializeObject(result, type, setting.Setting);
+			return JsonConvert.DeserializeObject(result, type, setting.JsonConverts);
 		}
 	}
 }

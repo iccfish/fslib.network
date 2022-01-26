@@ -48,18 +48,10 @@ namespace FSLib.Network.Http
 	public class JsonDeserializationSetting : JsonSetting
 	{
 		/// <summary>
-		/// 获得或设置在创建结果的过程中，如果已经提供了原始对象，是否保持原有对象不变。
-		/// <para>如果设置为false，则会创建新对象。如果设置为true，则会使用源对象并填充数据</para>
-		/// <para>默认为ture，此设置与JSON.NET库自身的反序列化设置并没有关系。</para>
-		/// </summary>
-		public bool KeepOriginalObject { get; set; }
-
-		/// <summary>
 		/// 创建 <see cref="JsonDeserializationSetting" />  的新实例(JsonDeserializationSetting)
 		/// </summary>
 		public JsonDeserializationSetting()
 		{
-			KeepOriginalObject = true;
 		}
 	}
 }
