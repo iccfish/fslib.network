@@ -19,5 +19,16 @@ namespace FSLib.Network.Tests.NetCore
 			Assert.IsNotNull(result);
 			Assert.IsTrue(result?.Contains("后花园") == true, "result?.Contains('后花园')==true");
 		}
+
+		[TestMethod]
+		public async Task TestPostJson()
+		{
+			var client = new HttpClient();
+			var context = client.PostJson("https://www.fishlee.net/", new { }, "");
+
+			var result = await context.SendAsync();
+
+			Assert.IsTrue(context.RequestContent is RequestJsonContent, "Wrap type error.");
+		}
 	}
 }

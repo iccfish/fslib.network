@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net.Security;
 #if NET4
 using System.Threading.Tasks;
 #endif
-using System.Xml;
 
 namespace FSLib.Network.Http
 {
@@ -235,7 +232,7 @@ namespace FSLib.Network.Http
 
 			return context;
 		}
-		
+
 
 		/// <summary>
 		/// 创建网络请求
@@ -369,9 +366,13 @@ namespace FSLib.Network.Http
 			var request = new HttpRequestMessage(uri, method)
 			{
 				Referer = referUri?.OriginalString ?? refer,
+				ContentType = contentType,
+				SaveToFile = saveToFile,
+				CopyToStream = targetStream,
 				//自动设置格式
 				ExceptType = resultType,
 				ExceptObject = result,
+				streamDataHandler = streamInvoker
 			};
 			if (data != null)
 			{

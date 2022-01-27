@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FSLib.Network.Http
 {
 	using System.Drawing;
-using FSLib.Extension;
-	using System.Security.Policy;
 	using System.Threading;
 
-	using Extension;
+	using FSLib.Extension;
 
 #if NET_GT_4 || NET5_0_OR_GREATER
 	using System.Threading.Tasks;
@@ -136,7 +131,7 @@ using FSLib.Extension;
 		/// <param name="usingJsonBody">是否将数据序列化成JSON内容发送</param>
 		/// <param name="allowAutoRedirect">是否允许自动重定向</param>
 		/// <returns></returns>
-		public HttpContext<T> Post<T>(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null) where T : class
+		public HttpContext<T> Post<T>(string uri, object data = null, string refer = null, bool? usingJsonBody = null, bool? allowAutoRedirect = null, T result = default) where T : class
 		{
 			return Create<T>(HttpMethod.Post, uri, refer, data, allowAutoRedirect: allowAutoRedirect, contentType: usingJsonBody == true ? ContentType.Json : usingJsonBody == false ? (ContentType?)ContentType.FormUrlEncoded : null);
 		}
@@ -149,9 +144,9 @@ using FSLib.Extension;
 		/// <param name="url"></param>
 		/// <param name="data"></param>
 		/// <returns></returns>
-		public HttpContext<TResult> PostJson<TRequest, TResult>(string url, TRequest data) where TResult : class
+		public HttpContext<TResult> PostJson<TRequest, TResult>(string url, TRequest data, TResult result = default) where TResult : class
 		{
-			return Create<TResult>(HttpMethod.Post, url, data: data, contentType: ContentType.Json);
+			return Create<TResult>(HttpMethod.Post, url, data: data, result: result, contentType: ContentType.Json);
 		}
 
 		/// <summary>
@@ -162,9 +157,9 @@ using FSLib.Extension;
 		/// <param name="url"></param>
 		/// <param name="data"></param>
 		/// <returns></returns>
-		public HttpContext<TResult> PutJson<TRequest, TResult>(string url, TRequest data) where TResult : class
+		public HttpContext<TResult> PutJson<TRequest, TResult>(string url, TRequest data, TResult result = default) where TResult : class
 		{
-			return Create<TResult>(HttpMethod.Put, url, data: data, contentType: ContentType.Json);
+			return Create<TResult>(HttpMethod.Put, url, data: data, result: result, contentType: ContentType.Json);
 		}
 
 		/// <summary>
