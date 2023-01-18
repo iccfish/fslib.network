@@ -41,7 +41,7 @@ namespace FSLib.Network.Http
 			if (!ctx.IsSuccess || ctx.Result == null)
 				return false;
 
-			if (ctx.Result is ResponseFileContent && !(ctx.Result as ResponseFileContent).Success)
+			if (ctx.Result is ResponseFileContent { Success: false })
 			{
 				return false;
 			}

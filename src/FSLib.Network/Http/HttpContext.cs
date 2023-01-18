@@ -18,10 +18,10 @@ namespace FSLib.Network.Http
 	using System.Diagnostics;
 
 
-
 #if NET_GT_4 || NET5_0_OR_GREATER
 	using System.Threading.Tasks;
 #endif
+
 	/// <summary>
 	/// 封装了一个请求的上下文环境
 	/// </summary>
@@ -31,12 +31,13 @@ namespace FSLib.Network.Http
 		bool _captureContext;
 
 		Dictionary<string, object> _contextData;
-		AsyncOperation _operation;
-		WebEventArgs _ctxEventArgs;
+		AsyncOperation             _operation;
+		WebEventArgs               _ctxEventArgs;
 
 		HttpPerformance _performance;
 
 		int _requestResubmit;
+
 		/// <summary>
 		/// 当前的状态
 		/// </summary>
@@ -47,7 +48,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		internal HttpContext(HttpClient client, HttpRequestMessage request)
 		{
-			Client = client ?? throw new ArgumentNullException(nameof(client), "client is null.");
+			Client  = client  ?? throw new ArgumentNullException(nameof(client),  "client is null.");
 			Request = request ?? throw new ArgumentNullException(nameof(request), "request is null.");
 
 			_ctxEventArgs = new WebEventArgs(this);
@@ -88,7 +89,7 @@ namespace FSLib.Network.Http
 			if (!ChangeReadyState(HttpContextState.NotSend, HttpContextState.Init))
 				return;
 
-			Performance = new HttpPerformance(this);
+			Performance    = new HttpPerformance(this);
 			ConnectionInfo = new ConnectionInfo();
 			if (AutoStartSpeedMonitor)
 				Performance.EnableSpeedMonitor();
@@ -381,7 +382,6 @@ namespace FSLib.Network.Http
 				handler(this, EventArgs.Empty);
 			Client.HttpHandler.OnRequestFinished(_ctxEventArgs);
 			Client.OnRequestSuccess(_ctxEventArgs);
-
 		}
 
 		/// <summary>
@@ -548,7 +548,7 @@ namespace FSLib.Network.Http
 		/// <param name="monitor"></param>
 		internal void AttachMonitor(HttpMonitor monitor)
 		{
-			Monitor = monitor;
+			Monitor     = monitor;
 			MonitorItem = monitor.Register(this);
 		}
 
@@ -634,9 +634,9 @@ namespace FSLib.Network.Http
 
 			var def = new Deferred<HttpContext>(captureContext);
 			RequestFinished += (s, e) => def.Resolve(this);
-			RequestFailed += (s, e) => def.Reject(Exception);
-			Request.Async = true;
-			CaptureContext = captureContext;
+			RequestFailed   += (s, e) => def.Reject(Exception);
+			Request.Async   =  true;
+			CaptureContext  =  captureContext;
 			ThreadPool.QueueUserWorkItem(_ => Send(), this);
 
 			return def.Promise();
@@ -896,7 +896,7 @@ namespace FSLib.Network.Http
 					tlc.SetResult(null);
 				}
 			};
-			Request.Async = true;
+			Request.Async  = true;
 			CaptureContext = false;
 
 			cancellationToken.Register(() => CheckCancellation());
@@ -923,7 +923,7 @@ namespace FSLib.Network.Http
 				var result = WebRequest.BeginGetRequestStream(_ => WriteRequestData(() =>
 					{
 						TransportContext context;
-						var stream = WebRequest.EndGetRequestStream(_, out context);
+						var              stream = WebRequest.EndGetRequestStream(_, out context);
 						Request.TransportContext = context;
 
 						return stream;
@@ -938,7 +938,7 @@ namespace FSLib.Network.Http
 				WriteRequestData(() =>
 				{
 					TransportContext context;
-					var stream = WebRequest.GetRequestStream(out context);
+					var              stream = WebRequest.GetRequestStream(out context);
 					Request.TransportContext = context;
 
 					return stream;
@@ -954,14 +954,14 @@ namespace FSLib.Network.Http
 			if (CheckCancellation() || CheckException())
 				return;
 
-			Stream stream;
+			Stream            stream;
 			HttpStreamWrapper embedStream;
 			try
 			{
 				var rawStream = getRequestStreamAction();
 				ConnectionInfo.SetRequest(WebRequest, null);
 				ConnectionInfo.SetStream(true, rawStream);
-				stream = Client.HttpHandler.DecorateRequestStream(this, rawStream);
+				stream      = Client.HttpHandler.DecorateRequestStream(this, rawStream);
 				embedStream = new HttpStreamWrapper(stream, stream.CanSeek ? stream.Length : WebRequest.ContentLength);
 			}
 			catch (Exception ex)
@@ -985,7 +985,7 @@ namespace FSLib.Network.Http
 			if (_operation != null)
 			{
 				_operation.Post(s => OnRequestStreamFetched(), null);
-				_operation.Post(s => OnRequestDataSending(), null);
+				_operation.Post(s => OnRequestDataSending(),   null);
 			}
 			else
 			{
@@ -1063,7 +1063,7 @@ namespace FSLib.Network.Http
 			{
 				//如果上一步不是发送数据，则可能是因为没有要发送的数据直接过来的。
 				ChangeReadyState(HttpContextState.SendingRequestHeader, HttpContextState.WriteRequestData);
-				ChangeReadyState(HttpContextState.WriteRequestData, HttpContextState.WaitingResponseHeader);
+				ChangeReadyState(HttpContextState.WriteRequestData,     HttpContextState.WaitingResponseHeader);
 			}
 
 			if (CheckCancellation() || CheckException())
@@ -1099,9 +1099,9 @@ namespace FSLib.Network.Http
 				if (WebResponse.StatusCode != HttpStatusCode.RequestedRangeNotSatisfiable)
 				{
 					//发生错误，清掉期待类型以便于猜测
-					Request.ExceptType = typeof(string);
+					Request.ExceptType   = typeof(string);
 					Request.ExceptObject = null;
-					Response = new HttpResponseMessage(WebResponse);
+					Response             = new HttpResponseMessage(WebResponse);
 				}
 			}
 			catch (Exception ex)
@@ -1198,7 +1198,7 @@ namespace FSLib.Network.Http
 
 			//创建wrapper
 			Performance.ResponseLength = responseStream.CanSeek ? responseStream.Length : Response.ContentLength;
-			responseStream = new HttpStreamWrapper(responseStream, Performance.ResponseLength);
+			responseStream             = new HttpStreamWrapper(responseStream, Performance.ResponseLength);
 
 			MonitorItem?.SetRawResponseStream((HttpStreamWrapper)responseStream);
 			(responseStream as HttpStreamWrapper).ProgressChanged += (s, e) =>
@@ -1226,12 +1226,12 @@ namespace FSLib.Network.Http
 					if (Response.ContentEncoding.IndexOf("gzip", StringComparison.OrdinalIgnoreCase) != -1)
 					{
 						Response.DecompressionMethod = DecompressionMethods.GZip;
-						responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
+						responseStream               = new GZipStream(responseStream, CompressionMode.Decompress);
 					}
 					else if (Response.ContentEncoding.IndexOf("deflate", StringComparison.OrdinalIgnoreCase) != -1)
 					{
 						Response.DecompressionMethod = DecompressionMethods.Deflate;
-						responseStream = new DeflateStream(responseStream, CompressionMode.Decompress);
+						responseStream               = new DeflateStream(responseStream, CompressionMode.Decompress);
 					}
 				}
 
@@ -1304,7 +1304,7 @@ namespace FSLib.Network.Http
 		/// </summary>
 		private void UnsafeParseCookies()
 		{
-			if (Response.Cookies == null || Client.CookieContainer == null) return;
+			if (Response.Cookies == null    || Client.CookieContainer      == null) return;
 			if (Client.ProcessCookies(this) || Request.CookiesHandleMethod != CookiesHandleMethod.Auto) return;
 			if (!Client.Setting.UseNonstandardCookieParser) return;
 
@@ -1334,7 +1334,7 @@ namespace FSLib.Network.Http
 			{
 				//干掉逗号
 				var commaIndex = h.IndexOf(";");
-				var fh = h.Substring(0, commaIndex).Replace(",", "%2C") + h.Substring(commaIndex);
+				var fh         = h.Substring(0, commaIndex).Replace(",", "%2C") + h.Substring(commaIndex);
 
 				Client.CookieContainer.SetCookies(Response.ResponseUri, fh);
 			}
@@ -1395,7 +1395,7 @@ namespace FSLib.Network.Http
 			{
 				OnRequestResubmit();
 				WebResponse = null;
-				Response = null;
+				Response    = null;
 				SetReadyState(HttpContextState.NotSend);
 				Send();
 
@@ -1681,10 +1681,10 @@ namespace FSLib.Network.Http
 				return null;
 
 			var def = new Deferred<HttpContext<T>>(captureContext);
-			CaptureContext = captureContext;
+			CaptureContext  =  captureContext;
 			RequestFinished += (s, e) => def.Resolve(this);
-			RequestFailed += (s, e) => def.Reject(Exception, this);
-			Request.Async = true;
+			RequestFailed   += (s, e) => def.Reject(Exception, this);
+			Request.Async   =  true;
 			Send();
 
 			return def.Promise();
@@ -1702,27 +1702,23 @@ namespace FSLib.Network.Http
 					return default;
 				}
 
-				var t = typeof(T);
-				object ret;
-				if (t == typeof(string))
+				var    t   = typeof(T);
+				object ret = default(T);
+				if (t == typeof(string) && ResponseContent is ResponseBinaryContent binary)
 				{
-					CheckResponseType<ResponseBinaryContent>();
-					ret = ((ResponseBinaryContent)ResponseContent).StringResult;
+					ret = binary.StringResult;
 				}
-				else if (t == typeof(byte[]) || t == typeof(object))
+				else if ((t == typeof(byte[]) || t == typeof(object)) && ResponseContent is ResponseBinaryContent b)
 				{
-					CheckResponseType<ResponseBinaryContent>();
-					ret = ((ResponseBinaryContent)ResponseContent).Result;
+					ret = b.Result;
 				}
-				else if (t == typeof(Image))
+				else if (t == typeof(Image) && ResponseContent is ResponseImageContent ric)
 				{
-					CheckResponseType<ResponseImageContent>();
-					ret = ((ResponseImageContent)ResponseContent).Image;
+					ret = ric.Image;
 				}
-				else if (t == typeof(XmlDocument))
+				else if (t == typeof(XmlDocument) && ResponseContent is ResponseXmlContent rxc)
 				{
-					CheckResponseType<ResponseXmlContent>();
-					ret = ((ResponseXmlContent)ResponseContent).XmlDocument;
+					ret = rxc.XmlDocument;
 				}
 				else if (typeof(Stream).IsAssignableFrom(t))
 				{
@@ -1732,21 +1728,15 @@ namespace FSLib.Network.Http
 				{
 					ret = ResponseContent;
 				}
-				else
+				else if (ResponseContent is ResponseObjectContent roc)
 				{
-					CheckResponseType<ResponseObjectContent>();
-					ret = ((ResponseObjectContent)ResponseContent).Object;
+					ret = roc.Object;
 				}
 
 				return (T)ret;
 			}
 		}
 
-		void CheckResponseType<TResult>() where TResult : HttpResponseContent
-		{
-			if (!(ResponseContent is TResult))
-				throw new InvalidOperationException(SR.HttpContext_CheckResponseType_ResponseTypeMismatch);
-		}
 
 #if NET_GT_4 || NET5_0_OR_GREATER
 		/// <summary>
@@ -1786,7 +1776,7 @@ namespace FSLib.Network.Http
 					tlc.SetResult(default(T));
 				}
 			};
-			Request.Async = true;
+			Request.Async  = true;
 			CaptureContext = false;
 
 			cancellationToken.Register(() => CheckCancellation());

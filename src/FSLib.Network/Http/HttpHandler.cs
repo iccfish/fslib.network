@@ -85,8 +85,9 @@
 		/// <param name="header">解析后的地址使用的位置</param>
 		/// <param name="url">字符串地址</param>
 		/// <param name="data">获得或设置相关联的数据</param>
+		/// <param name="resolveType">解析类型</param>
 		/// <returns></returns>
-		public override Uri ResolveUri(HttpRequestHeader? header, string url, Dictionary<string, object> data)
+		public override Uri ResolveUri(HttpRequestHeader? header, string url, Dictionary<string, object> data, ResolveUriType resolveType)
 		{
 			if (url == null)
 				return null;

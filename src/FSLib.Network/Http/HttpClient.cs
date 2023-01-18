@@ -20,6 +20,7 @@ namespace FSLib.Network.Http
 		/// 获得或设置默认的HTTP监控
 		/// </summary>
 		public static HttpMonitor DefaultMonitor { get; set; }
+
 		static HttpClient()
 		{
 			ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
@@ -31,16 +32,20 @@ namespace FSLib.Network.Http
 				OnServerCertificateValidation(sender, e);
 				return e.Result;
 			};
-			CheckCertificateRevocationList = false;
+			CheckCertificateRevocationList             = false;
 			ServicePointManager.DefaultConnectionLimit = 1024;
 
 #if NET35 || NET40
-			// see also: https://stackoverflow.com/questions/33761919/tls-1-2-in-net-framework-4-0
-			ServicePointManager.SecurityProtocol =
-				SecurityProtocolType.Ssl3
-				| SecurityProtocolType.Tls
-				| (SecurityProtocolType)3072 //TLS 1.2
-				| (SecurityProtocolType)768; //TLS 1.1;
+
+			if (Environment.OSVersion.Version.Major > 5)
+			{
+				// see also: https://stackoverflow.com/questions/33761919/tls-1-2-in-net-framework-4-0
+				ServicePointManager.SecurityProtocol =
+					SecurityProtocolType.Ssl3
+					| SecurityProtocolType.Tls
+					| (SecurityProtocolType)3072 //TLS 1.2
+					| (SecurityProtocolType)768; //TLS 1.1;
+			}
 #endif
 		}
 
@@ -51,8 +56,8 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public static bool CheckCertificateRevocationList
 		{
-			get { return ServicePointManager.CheckCertificateRevocationList; }
-			set { ServicePointManager.CheckCertificateRevocationList = value; }
+			get => ServicePointManager.CheckCertificateRevocationList;
+			set => ServicePointManager.CheckCertificateRevocationList = value;
 		}
 
 		/// <summary>
@@ -116,7 +121,7 @@ namespace FSLib.Network.Http
 				{
 					var ctx = _contextMap[e.Request];
 					e.HttpContext = ctx;
-					e.Client = ctx.Client;
+					e.Client      = ctx.Client;
 
 					ctx.OnServerCertificateValidation(e);
 				}
@@ -152,18 +157,23 @@ namespace FSLib.Network.Http
 		/// </summary>
 		public HttpClient(HttpSetting setting = null, IHttpHandler handler = null, CookieContainer cookieContainer = null)
 		{
-			Setting = setting ?? new HttpSetting();
+			Setting         = setting         ?? new HttpSetting();
 			CookieContainer = cookieContainer ?? new CookieContainer(4096, 100, 4096);
-			HttpHandler = handler ?? new HttpHandler();
+			HttpHandler     = handler         ?? new HttpHandler();
 		}
+
 		/// <summary>
 		/// 向当前客户端中导入Cookies
 		/// </summary>
 		/// <param name="cookies"></param>
 		/// <param name="uri"></param>
 		/// <param name="expiresTime">过期时间</param>
-		public void ImportCookies(string cookies, Uri uri, DateTime? expiresTime = null)
+		public void ImportCookies(string cookies, Uri uri = null, DateTime? expiresTime = null)
 		{
+			uri ??= HttpHandler.BaseUri;
+			if (uri == null)
+				throw new InvalidOperationException($"{nameof(uri)} can not be null if HttpHandle.BaseUri was not set.");
+
 			CookieContainer?.ImportCookies(cookies, uri, expiresTime);
 		}
 
@@ -198,14 +208,16 @@ namespace FSLib.Network.Http
 		/// <param name="url"></param>
 		/// <param name="header">当前解析使用的标头。如果为 <see langword="null" />，则为主要地址</param>
 		/// <param name="contextData">当前的上下文数据</param>
+		/// <param name="resolveType">解析类型</param>
 		/// <returns></returns>
-		protected virtual Uri ResolveUri(HttpRequestHeader? header, string url, Dictionary<string, object> contextData)
+		protected virtual Uri ResolveUri(HttpRequestHeader? header, string url, Dictionary<string, object> contextData, ResolveUriType resolveType)
 		{
-			var uri = HttpHandler.ResolveUri(header, url, contextData);
+			var uri = HttpHandler.ResolveUri(header, url, contextData, resolveType);
 			if (uri == null)
 			{
 				Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri);
 			}
+
 			var handler = ResolveToUri;
 			if (handler != null)
 			{
@@ -251,26 +263,25 @@ namespace FSLib.Network.Http
 		/// <param name="contentType">设置当发送对象类型时，设置发送类型</param>
 		/// <param name="allowAutoRedirect">设置当服务器发送3xx代码时是否自动跟踪跳转</param>
 		/// <param name="targetStream">要写入的目标流</param>
-		/// <param name="extra">额外的请求数据</param>
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		[Obsolete("This method was obsoleted. Please change sencod parameter from type Uri to string.")]
 		public HttpContext<TResult> Create<TResult>(
-			HttpMethod method,
-			Uri uri,
-			Uri refer,
-			object data = null,
-			TResult result = default(TResult),
-			string saveToFile = null,
-			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
-			bool async = false,
-			bool? isXhr = null,
-			Dictionary<string, object> contextData = null,
-			WebHeaderCollection headers = null,
-			ContentType? contentType = null,
-			bool? allowAutoRedirect = null,
-			Stream targetStream = null
-			) where TResult : class => Create<TResult>(method, uri, refer?.OriginalString, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
+			HttpMethod                                                        method,
+			Uri                                                               uri,
+			Uri                                                               refer,
+			object                                                            data              = null,
+			TResult                                                           result            = default(TResult),
+			string                                                            saveToFile        = null,
+			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker     = null,
+			bool                                                              async             = false,
+			bool?                                                             isXhr             = null,
+			Dictionary<string, object>                                        contextData       = null,
+			WebHeaderCollection                                               headers           = null,
+			ContentType?                                                      contentType       = null,
+			bool?                                                             allowAutoRedirect = null,
+			Stream                                                            targetStream      = null
+		) where TResult : class => Create(method, uri, refer?.OriginalString, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
 
 		/// <summary>
 		/// 创建网络请求
@@ -292,21 +303,21 @@ namespace FSLib.Network.Http
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		public HttpContext<TResult> Create<TResult>(
-			HttpMethod method,
-			Uri uri,
-			string refer = null,
-			object data = null,
-			TResult result = default,
-			string saveToFile = null,
-			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
-			bool async = false,
-			bool? isXhr = null,
-			Dictionary<string, object> contextData = null,
-			WebHeaderCollection headers = null,
-			ContentType? contentType = null,
-			bool? allowAutoRedirect = null,
-			Stream targetStream = null
-			) where TResult : class
+			HttpMethod                                                        method,
+			Uri                                                               uri,
+			string                                                            refer             = null,
+			object                                                            data              = null,
+			TResult                                                           result            = default,
+			string                                                            saveToFile        = null,
+			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker     = null,
+			bool                                                              async             = false,
+			bool?                                                             isXhr             = null,
+			Dictionary<string, object>                                        contextData       = null,
+			WebHeaderCollection                                               headers           = null,
+			ContentType?                                                      contentType       = null,
+			bool?                                                             allowAutoRedirect = null,
+			Stream                                                            targetStream      = null
+		) where TResult : class
 			=> Create(method.ToString().ToUpper(), uri, refer, data, result, saveToFile, streamInvoker, async, isXhr, contextData, headers, contentType, allowAutoRedirect, targetStream);
 
 		/// <summary>
@@ -329,21 +340,21 @@ namespace FSLib.Network.Http
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		public HttpContext<TResult> Create<TResult>(
-			string method,
-			Uri uri,
-			string refer = null,
-			object data = null,
-			TResult result = default,
-			string saveToFile = null,
-			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
-			bool async = false,
-			bool? isXhr = null,
-			Dictionary<string, object> contextData = null,
-			WebHeaderCollection headers = null,
-			ContentType? contentType = null,
-			bool? allowAutoRedirect = null,
-			Stream targetStream = null
-			) where TResult : class
+			string                                                            method,
+			Uri                                                               uri,
+			string                                                            refer             = null,
+			object                                                            data              = null,
+			TResult                                                           result            = default,
+			string                                                            saveToFile        = null,
+			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker     = null,
+			bool                                                              async             = false,
+			bool?                                                             isXhr             = null,
+			Dictionary<string, object>                                        contextData       = null,
+			WebHeaderCollection                                               headers           = null,
+			ContentType?                                                      contentType       = null,
+			bool?                                                             allowAutoRedirect = null,
+			Stream                                                            targetStream      = null
+		) where TResult : class
 		{
 			if (string.IsNullOrEmpty(method))
 				throw new ArgumentException($"{nameof(method)} is null or empty.", nameof(method));
@@ -357,21 +368,21 @@ namespace FSLib.Network.Http
 			}
 
 			contextData ??= new Dictionary<string, object>();
-			method = method.ToUpper();
+			method      =   method.ToUpper();
 
 			if (streamInvoker != null && typeof(Stream) == resultType)
 				throw new InvalidOperationException("非流结果时不可设置流操作");
 
-			var referUri = Setting.ResolveReferUri ? ResolveUri(HttpRequestHeader.Referer, refer, contextData) : null;
+			var referUri = Setting.ResolveReferUri ? ResolveUri(HttpRequestHeader.Referer, refer, contextData, ResolveUriType.ReferUri) : null;
 			var request = new HttpRequestMessage(uri, method)
 			{
-				Referer = referUri?.OriginalString ?? refer,
-				ContentType = contentType,
-				SaveToFile = saveToFile,
+				Referer      = referUri?.OriginalString ?? refer,
+				ContentType  = contentType,
+				SaveToFile   = saveToFile,
 				CopyToStream = targetStream,
 				//自动设置格式
-				ExceptType = resultType,
-				ExceptObject = result,
+				ExceptType        = resultType,
+				ExceptObject      = result,
 				streamDataHandler = streamInvoker
 			};
 			if (data != null)
@@ -382,6 +393,7 @@ namespace FSLib.Network.Http
 			{
 				request.RequestData = new byte[0];
 			}
+
 			request.Async = async;
 
 			var ctx = HttpHandler.GetContext<TResult>(this, request);
@@ -397,6 +409,7 @@ namespace FSLib.Network.Http
 				else
 					headers.CopyTo(request.Headers);
 			}
+
 			request.AllowAutoRedirect = allowAutoRedirect ?? Setting.AllowAutoDirect;
 
 			return ctx;
@@ -422,23 +435,24 @@ namespace FSLib.Network.Http
 		/// <typeparam name="TResult">结果类型</typeparam>
 		/// <returns></returns>
 		public HttpContext<TResult> Create<TResult>(
-			HttpMethod method,
-			string url,
-			string refer = null,
-			object data = null,
-			TResult result = default,
-			string saveToFile = null,
-			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker = null,
-			bool async = false,
-			bool? isXhr = null,
-			Dictionary<string, object> contextData = null,
-			WebHeaderCollection headers = null,
-			ContentType? contentType = null,
-			bool? allowAutoRedirect = null,
-			Stream targetStream = null
-			) where TResult : class
+			HttpMethod                                                        method,
+			string                                                            url,
+			string                                                            refer             = null,
+			object                                                            data              = null,
+			TResult                                                           result            = default,
+			string                                                            saveToFile        = null,
+			EventHandler<ResponseStreamContent.RequireProcessStreamEventArgs> streamInvoker     = null,
+			bool                                                              async             = false,
+			bool?                                                             isXhr             = null,
+			Dictionary<string, object>                                        contextData       = null,
+			WebHeaderCollection                                               headers           = null,
+			ContentType?                                                      contentType       = null,
+			bool?                                                             allowAutoRedirect = null,
+			Stream                                                            targetStream      = null
+		) where TResult : class
 		{
-			var uri = ResolveUri(null, url, contextData);
+			contextData ??= new Dictionary<string, object>();
+			var uri = ResolveUri(null, url, contextData, ResolveUriType.RequestUri);
 			if (uri == null)
 				return null;
 
@@ -493,7 +507,6 @@ namespace FSLib.Network.Http
 			handler?.Invoke(this, ea);
 			GlobalEvents.OnBeforeRequest(this, ea);
 		}
-
 
 
 		/// <summary>

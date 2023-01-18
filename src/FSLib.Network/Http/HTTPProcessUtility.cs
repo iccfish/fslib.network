@@ -15,7 +15,7 @@
 		/// <param name="cookies"></param>
 		/// <param name="uri"></param>
 		/// <param name="expiresTime">过期时间</param>
-		public static void ImportCookies(this CookieContainer container, string cookies, Uri uri, DateTime? expiresTime = null)
+		public static void ImportCookies(this CookieContainer container, string cookies, Uri uri = null, DateTime? expiresTime = null)
 		{
 			container.Add(uri, ParseCookies(cookies, uri, expiresTime));
 		}
@@ -35,7 +35,7 @@
 				throw new ArgumentNullException(nameof(url), "url is null.");
 
 			var cookieSegments = text.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-			var cc = new CookieCollection();
+			var cc             = new CookieCollection();
 
 			foreach (var cookieSegment in cookieSegments)
 			{
@@ -43,7 +43,7 @@
 				if (splitIndx == -1)
 					continue;
 
-				var name = cookieSegment.Substring(0, splitIndx).Trim();
+				var name  = cookieSegment.Substring(0, splitIndx).Trim();
 				var value = cookieSegment.Substring(splitIndx + 1).Trim();
 
 				var cok = new Cookie(name, value, url.AbsolutePath, url.Host);

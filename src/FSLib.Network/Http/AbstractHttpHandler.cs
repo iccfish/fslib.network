@@ -51,8 +51,9 @@ namespace FSLib.Network.Http
 		/// <param name="header">解析后的地址使用的位置</param>
 		/// <param name="url">字符串地址</param>
 		/// <param name="data">获得或设置相关联的数据</param>
+		/// <param name="resolveType">解析类型</param>
 		/// <returns></returns>
-		public abstract Uri ResolveUri(HttpRequestHeader? header, string url, Dictionary<string, object> data);
+		public abstract Uri ResolveUri(HttpRequestHeader? header, string url, Dictionary<string, object> data, ResolveUriType resolveType);
 
 		/// <summary>
 		/// 请求转换请求承载的内容为最终可以发送的数据，并确定其承载方式
